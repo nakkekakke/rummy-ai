@@ -11,3 +11,5 @@ I am not sure what kind of a decision making algorithm would be good for a card 
 ## Next up
 
 Next week I will create the game itself that will later be played by the AI. Also probably going to ask for help with the problems, and start implementing some parts of the AI into the game.
+
+#### Time spent this week: 5 hours
