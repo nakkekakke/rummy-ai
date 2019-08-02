@@ -96,13 +96,14 @@ public final class Game {
         return this.state.getCurrentPlayer().getHand();
     }
     
-    public void drawFromDeck() {
+    public Card drawFromDeck() {
         Card[] oldDeck = this.state.getDeck();
         Card draw = oldDeck[0];
         Card[] newDeck = shortenDeckByOne(oldDeck);
         
         this.state.setDeck(newDeck);
         this.state.getCurrentPlayer().addToHand(draw);
+        return draw;
     }
     
     public void initialDraw() {
@@ -142,7 +143,7 @@ public final class Game {
         this.state.getCurrentPlayer().organizeHand();
     }
     
-    public void drawFromDiscardPile() {
+    public Card drawFromDiscardPile() {
         Card draw = this.state.getDiscardPile().pop();
 //        Card[] newDiscardPile = new Card[oldDiscardPile.length - 1];
 //        for (int i = 0; i < newDiscardPile.length; i++) {
@@ -151,6 +152,7 @@ public final class Game {
 //        
 //        this.state.setDiscardPile(newDiscardPile);
         this.state.getCurrentPlayer().addToHand(draw);
+        return draw;
     }
     
     public void discard(Card card) {
@@ -217,7 +219,7 @@ public final class Game {
             for(int x : rank) {
                 log.print(Integer.toString(x));
             }
-            log.print("NEXTI");
+            log.print("NEXT");
         }
         
         // All run melds found, now find all set melds using rank data gathered earlier
@@ -264,8 +266,36 @@ public final class Game {
 //        
 //    }
     
-    public void layOff(Card card) {
-        
+    public Meld meld(Meld meld) {
+        for (int i = 0; i < meld.getCards().size(); i++) {
+            this.state.getCurrentPlayer().discard(meld.getCards().get(i));
+        }
+        this.state.getMelds().add(meld);
+        return meld;
+    }
+    
+    public List<Meld> getCurrentMelds() {
+        return this.state.getMelds();
+    }
+    
+    public List<Layoff> findPossibleLayoffs() {
+        List<Layoff> layoffs = new ArrayList<>();
+        List<Card> hand = this.state.getCurrentPlayer().getHand();
+        List<Meld> melds = this.state.getMelds();
+        for (int i = 0; i < hand.size(); i++) {
+            for (int j = 0; j < melds.size(); j++) {
+                if (melds.get(j).layOffAllowed(hand.get(i))) {
+                    layoffs.add(new Layoff(hand.get(i), melds.get(j)));
+                }
+            }
+        }
+        return layoffs;
+    }
+    
+    public Layoff layoff(Layoff layoff) {
+        this.state.getCurrentPlayer().discard(layoff.getCard());
+        layoff.getMeld().layoff(layoff.getCard());
+        return layoff;
     }
     
     public void endTurn() {

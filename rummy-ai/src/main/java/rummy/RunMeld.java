@@ -23,7 +23,7 @@ public class RunMeld extends Meld {
 
     // FIRST CHECK IF ALLOWED !!!
     @Override
-    public void layOff(Card card) {
+    public void layoff(Card card) {
         Card first = super.getCards().getFirst();
         Card last = super.getCards().getLast();
         if (card.getValue() == first.getValue() - 1) {
@@ -31,6 +31,11 @@ public class RunMeld extends Meld {
         } else if (card.getValue() == last.getValue() + 1) {
             super.getCards().addLast(card);
         }
+    }
+
+    @Override
+    public String type() {
+        return "run";
     }
     
     

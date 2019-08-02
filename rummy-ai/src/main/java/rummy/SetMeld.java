@@ -22,8 +22,13 @@ public class SetMeld extends Meld {
     
     // FIRST CHECK IF ALLOWED !!!
     @Override
-    void layOff(Card card) {
+    public void layoff(Card card) {
         super.getCards().add(card);
+    }
+
+    @Override
+    public String type() {
+        return "set";
     }
 
 }

@@ -23,7 +23,9 @@ public abstract class Meld {
     
     abstract boolean layOffAllowed(Card card);
     
-    abstract void layOff(Card card);
+    abstract void layoff(Card card);
     
     abstract boolean isFull();
+    
+    abstract String type();
 }
