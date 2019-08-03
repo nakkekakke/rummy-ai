@@ -11,12 +11,12 @@ public class SetMeld extends Meld {
     }
 
     @Override
-    boolean isFull() {
+    public boolean isFull() {
         return super.getCards().size() == 4;
     }
 
     @Override
-    boolean layOffAllowed(Card card) {
+    public boolean layOffAllowed(Card card) {
         return (card.getValue() == super.getCards().getFirst().getValue()) && !isFull();
     }
     

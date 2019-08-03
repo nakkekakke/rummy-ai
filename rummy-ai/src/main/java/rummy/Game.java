@@ -12,7 +12,7 @@ public final class Game {
     private State state;
     private static final int DECK_SIZE = 52;
     private static final int HAND_SIZE = 10;
-    private static final String[] meldTypes = {"SET", "RUN"};
+    private static final String[] phases = {"draw", "meld", "layoff", "discard", "end"};
     private final Logger log;
     
     public Game(int startingPlayer, Logger log) {
@@ -33,10 +33,10 @@ public final class Game {
     public State getFreshState(int startingPlayer) {
         if (startingPlayer == 1) {
             log.debug("Game initialized with player 1 starting");
-            return new State(new Player(1), new Player(2), createDeck(), new Stack<>(), new ArrayList<>());
+            return new State(new Player(1), new Player(2), createDeck(), new Stack<>(), new ArrayList<>(), Game.phases[0]);
         } else {
             log.debug("Game initialized with player 2 starting");
-            return new State(new Player(2), new Player(1), createDeck(), new Stack<>(), new ArrayList<>()); 
+            return new State(new Player(2), new Player(1), createDeck(), new Stack<>(), new ArrayList<>(), Game.phases[0]); 
         }
     }
     
@@ -103,6 +103,7 @@ public final class Game {
         
         this.state.setDeck(newDeck);
         this.state.getCurrentPlayer().addToHand(draw);
+        this.state.setPhase("meld");
         return draw;
     }
     
@@ -152,6 +153,7 @@ public final class Game {
 //        
 //        this.state.setDiscardPile(newDiscardPile);
         this.state.getCurrentPlayer().addToHand(draw);
+        this.state.setPhase("meld");
         return draw;
     }
     
@@ -165,6 +167,7 @@ public final class Game {
 //        
 //        this.state.setDiscardPile(newDiscardPile);
         this.state.getCurrentPlayer().discard(card);
+        this.state.setPhase("end");
     }
     
     public Card discardCardNumber(int number) {
@@ -271,6 +274,7 @@ public final class Game {
             this.state.getCurrentPlayer().discard(meld.getCards().get(i));
         }
         this.state.getMelds().add(meld);
+        this.state.setPhase("layoff");
         return meld;
     }
     
@@ -295,18 +299,46 @@ public final class Game {
     public Layoff layoff(Layoff layoff) {
         this.state.getCurrentPlayer().discard(layoff.getCard());
         layoff.getMeld().layoff(layoff.getCard());
+        this.state.setPhase("discard");
         return layoff;
+    }
+    
+    public List<Move> getAvailableMoves() {
+        // must make state immutable so state stored in move/node wont be changed
+        String phase = this.state.getPhase();
+        Player currentPlayer = this.state.getCurrentPlayer();
+        List<Move> moves = new ArrayList<>();
+        switch (phase) {
+            case "draw":
+                moves.add(new DrawMove(currentPlayer, this.state, true));
+                moves.add(new DrawMove(currentPlayer, this.state, false));
+                break;
+            case "meld":
+                for (Meld meld : findPossibleMelds()) {
+                    moves.add(new MeldMove(currentPlayer, this.state, meld));
+                }
+                break;
+            case "layoff":
+                for (Layoff layoff : findPossibleLayoffs()) {
+                    moves.add(new LayoffMove(currentPlayer, this.state, layoff));
+                }
+                break;
+            default:
+                break;
+        }
+        
+        return moves;
     }
     
     public void endTurn() {
         Player current = this.state.getCurrentPlayer();
         this.state.setCurrentPlayer(this.state.getWaitingPlayer());
         this.state.setWaitingPlayer(current);
+        this.state.setPhase("draw");
     }
     
     public boolean gameOver() {
         return this.state.getCurrentPlayer().getHand().isEmpty();
     }
-    
     
 }

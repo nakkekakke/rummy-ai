@@ -10,13 +10,15 @@ public class State {
     private Card[] deck;
     private Stack<Card> discardPile;
     private List<Meld> melds;
+    private String phase;
     
-    public State(Player currentPlayer, Player waitingPlayer, Card[] deck, Stack<Card> discardPile, List<Meld> melds) {
+    public State(Player currentPlayer, Player waitingPlayer, Card[] deck, Stack<Card> discardPile, List<Meld> melds, String phase) {
         this.currentPlayer = currentPlayer;
         this.waitingPlayer = waitingPlayer;
         this.deck = deck;
         this.discardPile = discardPile;
         this.melds = melds;
+        this.phase = phase;
     }
     
     public Player getCurrentPlayer() {
@@ -58,5 +60,13 @@ public class State {
     
     public void setMelds(List<Meld> melds) {
         this.melds = melds;
+    }
+    
+    public String getPhase() {
+        return this.phase;
+    }
+    
+    public void setPhase(String phase) {
+        this.phase = phase;
     }
 }

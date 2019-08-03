@@ -21,11 +21,11 @@ public abstract class Meld {
         return this.cards;
     }
     
-    abstract boolean layOffAllowed(Card card);
+    public abstract boolean layOffAllowed(Card card);
     
-    abstract void layoff(Card card);
+    public abstract void layoff(Card card);
     
-    abstract boolean isFull();
+    public abstract boolean isFull();
     
-    abstract String type();
+    public abstract String type();
 }
