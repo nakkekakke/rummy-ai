@@ -8,40 +8,39 @@ public class PlayGame {
     
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        Logger log; 
+//        Logger log; 
+//        
+//        System.out.println("Type y to start with debug logger");
+//        String debug = scanner.nextLine();
+//        if (debug.equals("y")) {
+//            log = new Logger(true);
+//        } else {
+//            log = new Logger(false);
+//        }
         
-        System.out.println("Type y to start with debug logger");
-        String debug = scanner.nextLine();
-        if (debug.equals("y")) {
-            log = new Logger(true);
-        } else {
-            log = new Logger(false);
-        }
-        
-        Game game;
+        State state;
         System.out.println("Which player goes first? Type 1 or 2");
         String first = scanner.nextLine();
         if (first.equals("1")) {
-            game = new Game(1, log);
+            state = new State(1);
         } else {
-            game = new Game(2, log);
+            state = new State(2);
         }
         
-        game.initialDraw();
         System.out.println("");
         System.out.println("");
         
         // GAME LOOP
         while (true) {
-            int currentPlayer = game.getCurrentPlayerId();
+            Player currentPlayer = state.getCurrentPlayer();
             System.out.println("");
             System.out.println("-------------------------------");
             System.out.println("");
-            System.out.println("It's player " + currentPlayer + "'s turn");
-            System.out.println("Deck has " + game.getDeckSize() + " cards");
-            System.out.println("Opponent has " + game.getHandSize(false) + " cards");
+            System.out.println("It's player " + currentPlayer.getId() + "'s turn");
+            System.out.println("Deck has " + state.getDeckSize() + " cards");
+            System.out.println("Opponent has " + state.getOpponentHandSize() + " cards");
             
-            List<Meld> currentMelds = game.getCurrentMelds();
+            List<Meld> currentMelds = state.getMelds();
             
             if (!currentMelds.isEmpty()) {
                 System.out.println("Current melds on board are:");
@@ -54,27 +53,27 @@ public class PlayGame {
             System.out.println("");
             
             System.out.println("Your hand:");
-            System.out.println(game.getPlayerHand());
+            System.out.println(currentPlayer.getHand());
             System.out.println("");
             
-            System.out.println("Top card of the discard pile is " + game.getDiscardPileTop());
+            System.out.println("Top card of the discard pile is " + state.getDiscardPileTop());
             System.out.println("");
             System.out.println("Draw from deck (1) or discard pile (2)?");
             String drawChoice = scanner.nextLine();
             Card draw;
             if (drawChoice.equals("1")) {
-                draw = game.drawFromDeck();
+                draw = state.drawFromDeck();
             } else {
-                draw = game.drawFromDiscardPile();
+                draw = state.drawFromDiscardPile();
             }
             
             System.out.println("Drew " + draw);
             
-            game.organizeCurrentHand();
+            state.organizeCurrentHand();
             
             System.out.println("");
             System.out.println("Checking for possible melds in your hand");
-            List<Meld> melds = game.findPossibleMelds();
+            List<Meld> melds = state.findPossibleMelds();
             if (!melds.isEmpty()) {
                 for (int i = 0; i < melds.size(); i++) {
                     System.out.println((i + 1) + ": " + melds.get(i).getCards());
@@ -91,7 +90,7 @@ public class PlayGame {
                 int meldChoice = Integer.parseInt(scanner.nextLine());
                 
                 if (meldChoice != 0) {
-                    Meld meld = game.meld(melds.get(meldChoice - 1));
+                    Meld meld = state.meld(melds.get(meldChoice - 1));
                     System.out.println("Melded: " + meld.getCards());
                 }
                 
@@ -99,56 +98,69 @@ public class PlayGame {
                 System.out.println("No possible melds in your hand");
             }
             
-            while (true) {
+
+            boolean searchForLayoffs = true;
+            
+            while (searchForLayoffs) {
+                searchForLayoffs = false;
+                
                 System.out.println("Checking for possible layoffs");
-                List<Layoff> layoffs = game.findPossibleLayoffs();
+                List<Layoff> layoffs = state.findPossibleLayoffs();
+                
                 if (!layoffs.isEmpty()) {
-                    for (int i = 0; i < layoffs.size(); i++) {
-                        System.out.println((i + 1) + ": " + layoffs.get(i).getCard() + " into meld " + layoffs.get(i).getMeld().getCards());
-                    }
-
+                    
                     if (layoffs.size() == 1) {
-                        System.out.println("Select 1 to layoff or 0 to not layoff");
+                        System.out.println("Select 1 to lay off or 0 to not lay off");
                     } else {
-                        System.out.println("Select layoff option (1-" + layoffs.size() + ") or select 0 to not layoff anything");
+                        System.out.println("Select option for layoff (1-" + layoffs.size() + " or select 0 to not lay off anything");
                     }
-
+                    
+                    for (int i = 0; i < layoffs.size(); i++) {
+                        System.out.println((i+1) + ": " + layoffs.get(i).getCard() + " into meld " + layoffs.get(i).getMeld().getCards());
+                    }
+                    
                     int layoffChoice = Integer.parseInt(scanner.nextLine());
-
-                    if (layoffChoice != 0) {
-                        Layoff layoff = game.layoff(layoffs.get(layoffChoice - 1));
-                        System.out.println("Laid " + layoff.getCard() + " into meld " + layoff.getMeld().getCards());
-                    } else {
-                        System.out.println("Skipping layoffs");
-                    }
+                        if (layoffChoice != 0) {
+                            state.layoff(layoffs.get(layoffChoice - 1));
+                            System.out.println("Laid " + layoffs.get(layoffChoice - 1).getCard() + " into meld " + layoffs.get(layoffChoice - 1).getMeld().getCards());
+                            searchForLayoffs = true;
+                        } else {
+                            System.out.println("Skipping this layoff");
+                        }
+                    
                 } else {
                     System.out.println("No possible layoffs");
                     break;
                 }
             }
             
+            if (state.roundOver()) {
+                break;
+            }
+            
             System.out.println("");
-            System.out.println("Select which card to discard (1-" + game.getHandSize(true) + ")");
-            System.out.println(game.getPlayerHand());
+            System.out.println("Select which card to discard (1-" + currentPlayer.getHand().size() + ")");
+            System.out.println(currentPlayer.getHand());
             String discardChoice = scanner.nextLine();
-            Card discarded = game.discardCardNumber(Integer.parseInt(discardChoice) - 1);
+            Card discarded = state.discardCardNumber(Integer.parseInt(discardChoice) - 1);
             System.out.println(discarded + " discarded");
             
             System.out.println("");
             
-            if (game.gameOver()) {
+            if (state.roundOver()) {
                 break;
             }
             
             System.out.println("End of turn");
 
-            game.endTurn();
+            state.endTurn();
         }
         
         
         
         
         
-        System.out.println("Player " + game.getState().getCurrentPlayer().getId() + " won!");
+        System.out.println("Player " + state.getCurrentPlayer().getId() + " won!");
+        System.out.println("Points awarded: " + state.calculateRoundPoints());
     }
 }

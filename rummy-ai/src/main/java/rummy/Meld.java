@@ -1,6 +1,7 @@
 package rummy;
 
 import java.util.LinkedList;
+import java.util.Objects;
 
 
 public abstract class Meld {
@@ -11,6 +12,11 @@ public abstract class Meld {
     public Meld(Player player, LinkedList<Card> cards) {
         this.player = player;
         this.cards = cards;
+    }
+    
+    public Meld(Meld meld) {
+        this.player = meld.getPlayer();
+        this.cards = meld.getCards();
     }
     
     public Player getPlayer() {
@@ -28,4 +34,31 @@ public abstract class Meld {
     public abstract boolean isFull();
     
     public abstract String type();
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 43 * hash + Objects.hashCode(this.cards);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Meld other = (Meld) obj;
+        if (!Objects.equals(this.cards, other.cards)) {
+            return false;
+        }
+        return true;
+    }
+    
+    
 }

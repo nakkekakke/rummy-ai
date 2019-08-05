@@ -14,6 +14,16 @@ public class Player {
         this.hand = new ArrayList<>();
     }
     
+    // clones a player
+    public Player(Player player) {
+        this.id = player.getId();
+        this.hand = new ArrayList<>();
+        
+        for (Card card : player.getHand()) {
+            this.hand.add(card);
+        }
+    }
+    
     public int getId() {
         return this.id;
     }
@@ -50,6 +60,5 @@ public class Player {
                 }
             }
         }
-        
     }
 }
