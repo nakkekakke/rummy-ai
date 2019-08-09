@@ -36,3 +36,12 @@ gradle-app.setting
 # Cache of project
 .gradletasknamecache
 /rummy-ai/build/
+
+**/nbproject/private
+**/nbproject/Makefile-*.mk
+**/nbproject/Package-*bash
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle

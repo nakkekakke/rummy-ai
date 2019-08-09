@@ -1,4 +1,4 @@
-package rummy;
+package rummy.game.domain;
 
 
 public enum Suit {

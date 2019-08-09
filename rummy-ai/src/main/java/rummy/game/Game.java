@@ -1,4 +1,4 @@
-package rummy;
+package rummy.game;
 
 import java.util.ArrayList;
 import java.util.LinkedList;

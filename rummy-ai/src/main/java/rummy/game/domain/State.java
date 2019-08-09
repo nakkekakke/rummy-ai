@@ -1,10 +1,20 @@
-package rummy;
+package rummy.game.domain;
 
+import rummy.game.domain.Suit;
+import rummy.game.util.Logger;
+import rummy.game.domain.meld.SetMeld;
+import rummy.game.domain.meld.RunMeld;
+import rummy.game.domain.meld.Meld;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.Stack;
+import rummy.game.domain.move.DiscardMove;
+import rummy.game.domain.move.DrawMove;
+import rummy.game.domain.move.LayoffMove;
+import rummy.game.domain.move.MeldMove;
+import rummy.game.domain.move.Move;
 
 public class State {
     
@@ -12,18 +22,45 @@ public class State {
     private static final int MAX_HAND_SIZE = 10;
     private static final int PLAYER_COUNT = 2;
     private static final String[] phases = {"draw", "meld", "layoff", "discard", "end"};
-    private final Logger log = new Logger(true);
+    private final Logger log = new Logger(false);
     private Player currentPlayer;
     private Player waitingPlayer;
     private Card[] deck;
     private Stack<Card> discardPile;
     private List<Meld> melds;
     private String phase;
-    private Meld currentMeld;
+    private Meld currentMeld; // meld used this turn
     private Card[][] knownHandCards;
     private Player loser;
     
-    public State(Player currentPlayer, Player waitingPlayer, Card[] deck, Stack<Card> discardPile, List<Meld> melds, String phase, Card[][] knownHandCards) {
+    // for starting a new game
+    public State(int currentPlayerId) {
+        this.currentPlayer = new Player(currentPlayerId);
+        this.waitingPlayer = new Player((currentPlayerId % PLAYER_COUNT) + 1);
+        this.discardPile = new Stack<>();
+        this.melds = new ArrayList<>();
+        this.phase = "draw";
+        this.currentMeld = null;
+        this.knownHandCards = new Card[PLAYER_COUNT][MAX_HAND_SIZE + 1];
+        this.loser = null;
+        this.deal();
+    }
+    
+    // for starting a new round
+    public State(Player currentPlayer, Player waitingPlayer) {
+        this.currentPlayer = currentPlayer;
+        this.waitingPlayer = waitingPlayer;
+        this.discardPile = new Stack<>();
+        this.melds = new ArrayList<>();
+        this.phase = "draw";
+        this.currentMeld = null;
+        this.knownHandCards = new Card[PLAYER_COUNT][MAX_HAND_SIZE + 1];
+        this.loser = null;
+        this.deal();
+    }
+    
+    // for cloning
+    public State(Player currentPlayer, Player waitingPlayer, Card[] deck, Stack<Card> discardPile, List<Meld> melds, String phase, Card[][] knownHandCards, Meld currentMeld) {
         this.currentPlayer = currentPlayer;
         this.waitingPlayer = waitingPlayer;
         this.deck = deck;
@@ -31,18 +68,8 @@ public class State {
         this.melds = melds;
         this.phase = phase;
         this.knownHandCards = knownHandCards;
+        this.currentMeld = currentMeld;
         this.loser = null;
-    }
-    
-    public State(int currentPlayerId) {
-        this.currentPlayer = new Player(currentPlayerId);
-        this.waitingPlayer = new Player((currentPlayerId % PLAYER_COUNT) + 1);
-        this.discardPile = new Stack<>();
-        this.melds = new ArrayList<>();
-        this.currentMeld = null;
-        this.knownHandCards = new Card[PLAYER_COUNT][MAX_HAND_SIZE + 1];
-        this.loser = null;
-        this.deal();
     }
     
     public Player getCurrentPlayer() {
@@ -116,18 +143,18 @@ public class State {
     }
     
     public final Card[] createDeck() {
-        Card[] deck = new Card[DECK_SIZE];
+        Card[] newDeck = new Card[DECK_SIZE];
         
         int i = 0;
         for (Suit suit : Suit.values()) {
             for (int rank = 1; rank <= 13; rank++) {
-                deck[i] = (new Card(suit, rank));
+                newDeck[i] = (new Card(suit, rank));
                 i++;
                 log.debug("Card " + suit + "-" + rank + " created");
             }
         }
         
-        return deck;
+        return newDeck;
     }
     
     private Card[] shuffleDeck(Card[] deck) {
@@ -144,6 +171,8 @@ public class State {
     }
     
     private void initializeHands() {
+        this.currentPlayer.setHand(new ArrayList<>());
+        this.waitingPlayer.setHand(new ArrayList<>());
         for (int i = 0; i < MAX_HAND_SIZE * 2; i += 2) {
             this.currentPlayer.addToHand(this.deck[i]);
             this.waitingPlayer.addToHand(this.deck[i + 1]);
@@ -328,6 +357,9 @@ public class State {
     public void layoff(Layoff layoff) {
         this.currentPlayer.discard(layoff.getCard());
         layoff.getMeld().layoff(layoff.getCard());
+    }
+    
+    public void layoffDone() {
         this.phase = "discard";
     }
     
@@ -336,7 +368,6 @@ public class State {
         this.discard(card);
         return card;
     }
-        
         
     public void discard(Card card) {
         this.discardPile.push(card);
@@ -359,7 +390,15 @@ public class State {
             sum += this.waitingPlayer.getHand().get(i).getValue();
         }
         return sum;
-    } 
+    }
+    
+    public void updateWinnerPoints() {
+        this.currentPlayer.setPoints(this.currentPlayer.getPoints() + calculateRoundPoints());
+    }
+    
+    public State startNewRound() {
+        return new State(this.waitingPlayer, this.currentPlayer); // loser starts the next round
+    }
         
     public boolean roundOver() {
         return currentPlayer.getHand().isEmpty();
@@ -371,8 +410,9 @@ public class State {
     }
     
     
+    
     //
-    // FUNCTIONS FOR THE AI
+    // "THE AI METHODS"
     //
     
     public List<Move> getAvailableMoves() {
@@ -399,6 +439,47 @@ public class State {
         return moves;
     }
     
+    public void doMove(Move move) {
+        switch (move.type()) {
+            case "draw":
+                doDrawMove((DrawMove) move);
+                break;
+            case "meld":
+                doMeldMove((MeldMove) move);
+                break;
+            case "layoff":
+                doLayoffMove((LayoffMove) move);
+                break;
+            case "discard":
+                doDiscardMove((DiscardMove) move);
+                break;
+            default:
+                System.out.println("Oopsie");
+                break;
+        }
+    }
+    
+    private void doDrawMove(DrawMove move) {
+        if (move.isDeckDraw()) {
+            drawFromDeck();
+        } else {
+            drawFromDiscardPile();
+        }
+    }
+    
+    private void doMeldMove(MeldMove move) {
+        meld(move.getMeld());
+    }
+    
+    private void doLayoffMove(LayoffMove move) {
+        layoff(move.getLayoff());
+    }
+    
+    private void doDiscardMove(DiscardMove move) {
+        discard(move.getCard());
+    }
+    
+    @SuppressWarnings("unchecked")
     public State cloneState() {
         List<Meld> cloneMelds = new ArrayList<>();
         
@@ -415,7 +496,16 @@ public class State {
             cloneMelds.add(cloneMeld);
         }
         
-        return new State(new Player(currentPlayer), new Player(waitingPlayer), this.deck.clone(), (Stack<Card>) this.discardPile.clone(), cloneMelds, this.phase, this.knownHandCards);
+        return new State(
+                new Player(this.currentPlayer), 
+                new Player(this.waitingPlayer), 
+                this.deck.clone(), 
+                (Stack<Card>) this.discardPile.clone(), 
+                cloneMelds, 
+                this.phase, 
+                this.knownHandCards, 
+                this.currentMeld
+        );
     }
     
     public State cloneAndRandomizeState() {
@@ -425,19 +515,19 @@ public class State {
         int knownIndex = 0;
         
         // add own hand cards to known cards
-        for (Card card : clone.currentPlayer.getHand()) {
+        for (Card card : clone.getCurrentPlayer().getHand()) {
             knownCards[knownIndex] = card;
             knownIndex++;
         }
         
         // add discard pile to known cards
-        for (Card card : clone.discardPile) {
+        for (Card card : clone.getDiscardPile()) {
             knownCards[knownIndex] = card;
             knownIndex++;
         }
         
         // add all melds to known cards
-        for (Meld meld : clone.melds) {
+        for (Meld meld : clone.getMelds()) {
             for (Card card : meld.getCards()) {
                 knownCards[knownIndex] = card;
                 knownIndex++;
@@ -446,8 +536,8 @@ public class State {
         
         // add known opponent's hand cards to known cards
         for (int j = 0; j < MAX_HAND_SIZE + 1; j++) {
-            if (clone.knownHandCards[clone.waitingPlayer.getId()][j] != null) {
-                knownCards[knownIndex] = clone.knownHandCards[clone.waitingPlayer.getId()][j];
+            if (clone.getKnownHandCards()[clone.getWaitingPlayer().getId()][j] != null) {
+                knownCards[knownIndex] = clone.getKnownHandCards()[clone.getWaitingPlayer().getId()][j];
                 knownIndex++;
             }
         }
@@ -521,6 +611,7 @@ public class State {
         
         return result;
     }
+
 
     private void addToKnownHandCards(Card card, Player player) {
         for (int i = 0; i < MAX_HAND_SIZE + 1; i++) {

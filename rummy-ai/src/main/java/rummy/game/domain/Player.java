@@ -1,4 +1,4 @@
-package rummy;
+package rummy.game.domain;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,16 +7,19 @@ import java.util.List;
 public class Player {
     
     private final int id;
+    private int points;
     private List<Card> hand;
     
     public Player(int id) {
         this.id = id;
+        this.points = 0;
         this.hand = new ArrayList<>();
     }
     
     // clones a player
     public Player(Player player) {
         this.id = player.getId();
+        this.points = player.getPoints();
         this.hand = new ArrayList<>();
         
         for (Card card : player.getHand()) {
@@ -26,6 +29,14 @@ public class Player {
     
     public int getId() {
         return this.id;
+    }
+    
+    public int getPoints() {
+        return this.points;
+    }
+    
+    public void setPoints(int points) {
+        this.points = points;
     }
     
     public List<Card> getHand() {

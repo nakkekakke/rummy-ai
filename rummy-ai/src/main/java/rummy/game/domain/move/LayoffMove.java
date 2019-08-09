@@ -1,4 +1,9 @@
-package rummy;
+package rummy.game.domain.move;
+
+import rummy.game.domain.Layoff;
+import rummy.game.domain.Player;
+import rummy.game.domain.State;
+import rummy.game.domain.move.Move;
 
 
 public class LayoffMove extends Move {

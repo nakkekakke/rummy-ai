@@ -1,7 +1,10 @@
-package rummy;
+package rummy.game.domain.meld;
 
+import rummy.game.domain.meld.Meld;
 import java.util.LinkedList;
 import java.util.List;
+import rummy.game.domain.Card;
+import rummy.game.domain.Player;
 
 public class RunMeld extends Meld {
 

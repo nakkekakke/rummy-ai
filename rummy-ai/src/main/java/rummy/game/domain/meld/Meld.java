@@ -1,7 +1,9 @@
-package rummy;
+package rummy.game.domain.meld;
 
 import java.util.LinkedList;
 import java.util.Objects;
+import rummy.game.domain.Card;
+import rummy.game.domain.Player;
 
 
 public abstract class Meld {

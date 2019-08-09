@@ -1,4 +1,6 @@
-package rummy;
+package rummy.game.domain;
+
+import rummy.game.domain.meld.Meld;
 
 
 public class Layoff {
