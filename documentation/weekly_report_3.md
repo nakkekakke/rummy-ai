@@ -6,7 +6,7 @@ This week I spent a lot of time doing JUnit tests. I also restructured my applic
 
 ## Problems and questions
 
-While doing my tests this week, for some reason I could not generate Jacoco test reports with Gradle, even when modifying my build.gradle like in the example "Testing-and-rmq" build.gradle file. It says "Unable to read execution data file .../build/jacoco/test.exec" and I don't yet know how to resolve the issue.
+While doing my tests this week, for some reason I could not generate Jacoco test reports with Gradle, even when modifying my build.gradle like in the example "Testing-and-rmq" build.gradle file. While executing task "jacocoTestReport", Gradle says "Unable to read execution data file .../build/jacoco/test.exec" and I don't yet know how to resolve the issue.
 
 ## Next up
 
