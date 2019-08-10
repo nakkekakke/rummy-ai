@@ -597,7 +597,7 @@ public class State {
     // 60 points = 0.8
     // 80 points = 0.9
     // 100 points = win = 1.0
-    public double getAIWinResult() {
+    public double getWinResult() {
         double result = -1.0;
         int points = calculateRoundPoints();
         

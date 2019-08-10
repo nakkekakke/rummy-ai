@@ -10,21 +10,21 @@ public class Node {
     private Node parent;
     private List<Node> children;
     
-    private Move previousMove;
+    private Move move;
     private Player player;
     private int totalScore;
     private int visits;
-    private int parentVisits;
+    private int considerations; // times this node has been considered but not selected
     
-    public Node(Node parent, Move previousMove, Player player) {
+    public Node(Node parent, Move move, Player player) {
         this.parent = parent;
         this.children = new ArrayList<>();
         
-        this.previousMove = previousMove;
+        this.move = move;
         this.player = player;
         this.totalScore = 0;
         this.visits = 0;
-        this.parentVisits = 1;
+        this.considerations = 1;
     }
 
     public Node getParent() {
@@ -43,12 +43,12 @@ public class Node {
         this.children = children;
     }
 
-    public Move getPreviousMove() {
-        return this.previousMove;
+    public Move getMove() {
+        return this.move;
     }
 
-    public void setPreviousMove(Move previousMove) {
-        this.previousMove = previousMove;
+    public void setMove(Move move) {
+        this.move = move;
     }
 
     public Player getPlayer() {
@@ -75,19 +75,19 @@ public class Node {
         this.visits = visits;
     }
 
-    public int getParentVisits() {
-        return this.parentVisits;
+    public int getConsiderations() {
+        return this.considerations;
     }
 
-    public void setParentVisits(int parentVisits) {
-        this.parentVisits = parentVisits;
+    public void setConsiderations(int considerations) {
+        this.considerations = considerations;
     }
     
     
     public List<Move> getUntriedMoves(List<Move> possibleMoves) {
         List<Move> triedMoves = new ArrayList<>();
         for (Node child : this.children) {
-            triedMoves.add(child.previousMove);
+            triedMoves.add(child.move);
         }
         
         List<Move> untriedMoves = new ArrayList<>();
@@ -107,5 +107,49 @@ public class Node {
         }
         
         return untriedMoves;
+    }
+    
+    public Node selectChild(List<Move> possibleMoves, double exploration) {
+        Node selection = null;
+        double selectionScore = -1.0;
+        
+        for (Node child : this.children) {
+            if (possibleMoves.contains(child.move)) {
+                double currentScore = calculateUCTScore(child, exploration);
+                
+                if (currentScore > selectionScore) {
+                    selection = child;
+                    selectionScore = currentScore; 
+                }
+                
+                child.setConsiderations(child.getConsiderations() + 1);
+            }
+        }
+        
+        return selection;
+    }
+    
+    public Node addChild(Move move, Player player) {
+        Node newNode = new Node(this, move, player);
+        this.children.add(newNode);
+        return newNode;
+    }
+    
+    public void update(Player winner, double result) {
+        this.visits++;
+        if (winner.getId() == this.player.getId()) {
+            this.totalScore += result;
+        } else {
+            this.totalScore += 1 - result;
+        }
+    }
+    
+    @Override
+    public String toString() {
+        return "MOVE: " + this.move.type() + ", SCORE: " + this.totalScore + ", VISITS: " + this.visits + ", CONSIDERATIONS: " + this.considerations;
+    }
+    
+    private double calculateUCTScore(Node node, double exploration) {
+        return ( node.getTotalScore() / node.getVisits() ) + ( exploration * Math.sqrt(Math.log(node.getConsiderations()) / node.getVisits()) );
     }
 }
