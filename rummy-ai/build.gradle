@@ -42,7 +42,7 @@ jacocoTestReport {
     }
 }
 
-mainClassName = 'rummy.PlayGame'
+mainClassName = 'rummy.game.PlayGame'
 
 // compileJava {
 //     options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"

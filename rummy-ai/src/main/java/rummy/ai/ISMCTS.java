@@ -23,6 +23,10 @@ public class ISMCTS {
     public State getRootState() {
         return this.rootState;
     }
+    
+    public void setRootState(State rootState) {
+        this.rootState = rootState;
+    }
 
     public int getLimit() {
         return this.limit;
@@ -33,9 +37,12 @@ public class ISMCTS {
         Node rootNode = new Node(null, null, this.rootState.getCurrentPlayer());
         
         long start = System.currentTimeMillis();
-        long end = start + (limit * 1000);
+//        long end = start + (limit * 1000);
         
-        while (start < end) {
+        int loopCounter = 0;
+        
+        
+        while (loopCounter < limit) {
             Node currentNode = rootNode;
             
             // 1. Determinize the state
@@ -43,7 +50,7 @@ public class ISMCTS {
             
             // 2. Select the most promising child node
             List<Move> possibleMoves = state.getAvailableMoves(); // store possible moves to save method calls
-            while (!possibleMoves.isEmpty() && currentNode.getUntriedMoves(possibleMoves).isEmpty()) { // while every move option has been explored and the game hasn't ended
+            while ((!possibleMoves.isEmpty() && !state.roundOver()) && currentNode.getUntriedMoves(possibleMoves).isEmpty()) { // while every move option has been explored and the game hasn't ended
                 currentNode = currentNode.selectChild(possibleMoves, EXPL); // descend the tree
                 state.doMove(currentNode.getMove()); // update the state
                 possibleMoves = state.getAvailableMoves(); // possible moves change after a move so we have to redo this here
@@ -58,20 +65,30 @@ public class ISMCTS {
                 currentNode = currentNode.addChild(randomMove, currentPlayer); // add a child and descend the tree
             }
             
+            System.out.println("New node is " + currentNode);
+            
             // 4. Simulate by doing random moves until the game ends
             possibleMoves = state.getAvailableMoves();
-            while (!possibleMoves.isEmpty()) {
+            System.out.println("Simulating");
+            while (!possibleMoves.isEmpty() && !state.roundOver()) {
                 state.doMove(possibleMoves.get(this.random.nextInt(possibleMoves.size())));
                 possibleMoves = state.getAvailableMoves();
+                System.out.println(state);
             }
             
             // 5. Backpropagate the result from the expanded node back to the root
             double result = state.getWinResult();
+            System.out.println("Result: " + result + " for player " + state.getCurrentPlayer().getId());
             while (currentNode != null) {
                 currentNode.update(state.getCurrentPlayer(), result);
                 currentNode = currentNode.getParent();
+                System.out.println("Current node backpropagating: " + currentNode);
             }
+            System.out.println("All done");
+            loopCounter++;
         }
+        
+        System.out.println(rootNode.treeToString(0));
         
         Node best = rootNode.getChildren().get(0);
         
@@ -80,7 +97,9 @@ public class ISMCTS {
                 best = child;
             }
         }
-        
+        System.out.println("Looped " + loopCounter + " times!");
+        long end = System.currentTimeMillis() - start;
+        System.out.println("This took " + end + " ms");
         return best.getMove();
     }
 

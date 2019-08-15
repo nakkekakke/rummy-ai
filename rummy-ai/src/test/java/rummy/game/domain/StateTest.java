@@ -250,12 +250,13 @@ public class StateTest {
         Random random = new Random();
         int randomIndex = random.nextInt(hand.size());
         Card randomCard = hand.get(randomIndex);
+        state.setPhase("discard");
         
         state.discardCardNumber(randomIndex);
         
         assertFalse(hand.contains(randomCard));
         assertEquals(randomCard, state.getDiscardPileTop());
-        assertEquals("end", state.getPhase());
+        assertEquals("discard", state.getPhase());
     }
     
     @Test

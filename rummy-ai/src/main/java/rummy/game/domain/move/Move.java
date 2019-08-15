@@ -1,27 +1,20 @@
 package rummy.game.domain.move;
 
 import rummy.game.domain.Player;
-import rummy.game.domain.State;
 
 
 public abstract class Move {
     
     private final Player player;
-    private final State state;
     
-    
-    public Move(Player player, State state) {
+    public Move(Player player) {
         this.player = player;
-        this.state = state;
     }
     
     public Player getPlayer() {
         return this.player;
     }
 
-    public State getState() {
-        return this.state;
-    }
     
     public abstract String type();
 }

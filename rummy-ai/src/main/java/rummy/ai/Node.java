@@ -144,9 +144,30 @@ public class Node {
         }
     }
     
+    public String treeToString(int indent) {
+        String s = indentString(indent) + this;
+        for (Node child : this.children) {
+            s += child.treeToString(indent + 1);
+        }
+        return s;
+    }
+    
+    public String indentString(int indent) {
+        String s = "\n";
+        for (int i = 0; i < indent + 1; i++) {
+            s += "| ";
+        }
+        return s;
+    }
+    
     @Override
     public String toString() {
-        return "MOVE: " + this.move.type() + ", SCORE: " + this.totalScore + ", VISITS: " + this.visits + ", CONSIDERATIONS: " + this.considerations;
+        if (this.move == null) {
+            return "ROOT, SCORE: " + this.totalScore + ", VISITS: " + this.visits + ", CONSIDERATIONS: " + this.considerations;
+        } else if (this.parent.move == null) {
+            return "MOVE: " + this.move.type() + ", SCORE: " + this.totalScore + ", VISITS: " + this.visits + ", CONSIDERATIONS: " + this.considerations + ", PARENT: ROOT";
+        }
+        return "MOVE: " + this.move.type() + ", SCORE: " + this.totalScore + ", VISITS: " + this.visits + ", CONSIDERATIONS: " + this.considerations + ", PARENT TYPE: " + this.parent.move.type();
     }
     
     private double calculateUCTScore(Node node, double exploration) {

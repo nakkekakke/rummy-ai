@@ -1,40 +1,36 @@
 package rummy.game.domain.move;
 
-import rummy.game.domain.move.Move;
+import java.util.Objects;
 import rummy.game.domain.Player;
 
 
-public class DrawMove extends Move {
+public class PassMove extends Move {
     
-    private boolean isDeckDraw; // true if deck draw, false if discard pile draw
-
-    public DrawMove(Player player, boolean isDeckDraw) {
+    private String phase;
+    
+    public PassMove(Player player, String phase) {
         super(player);
-        this.isDeckDraw = isDeckDraw;
+        this.phase = phase;
     }
     
-    public boolean isDeckDraw() {
-        return this.isDeckDraw;
+    public String getPhase() {
+        return this.phase;
     }
 
     @Override
     public String type() {
-        return "draw";
+        return "pass";
     }
     
     @Override
     public String toString() {
-        if (isDeckDraw) {
-            return "Draw from deck";
-        }
-        
-        return "Draw from discard pile";
+        return "Pass";
     }
 
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 43 * hash + (this.isDeckDraw ? 1 : 0);
+        hash = 29 * hash + Objects.hashCode(this.phase);
         return hash;
     }
 
@@ -49,8 +45,8 @@ public class DrawMove extends Move {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final DrawMove other = (DrawMove) obj;
-        if (this.isDeckDraw != other.isDeckDraw) {
+        final PassMove other = (PassMove) obj;
+        if (!Objects.equals(this.phase, other.phase)) {
             return false;
         }
         return true;

@@ -29,6 +29,11 @@ public abstract class Meld {
         return this.cards;
     }
     
+    @Override
+    public String toString() {
+        return this.cards.toString();
+    }
+    
     public abstract boolean layOffAllowed(Card card);
     
     public abstract void layoff(Card card);
