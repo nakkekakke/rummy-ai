@@ -18,7 +18,12 @@ public class LayoffMove extends Move {
     public Layoff getLayoff() {
         return this.layoff;
     }
-
+    
+    @Override
+    public LayoffMove copy() {
+        return new LayoffMove(super.getPlayer(), this.layoff);
+    }
+    
     @Override
     public String type() {
         return "layoff";

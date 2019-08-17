@@ -41,6 +41,8 @@ public abstract class Meld {
     public abstract boolean isFull();
     
     public abstract String type();
+    
+    public abstract Meld copy();
 
     @Override
     public int hashCode() {
@@ -61,11 +63,7 @@ public abstract class Meld {
             return false;
         }
         final Meld other = (Meld) obj;
-        if (!Objects.equals(this.cards, other.cards)) {
-            return false;
-        }
-        return true;
+        
+        return (this.cards.containsAll(other.cards) && other.cards.containsAll(this.cards));
     }
-    
-    
 }

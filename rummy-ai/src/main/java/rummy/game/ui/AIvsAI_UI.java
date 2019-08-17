@@ -18,18 +18,21 @@ public class AIvsAI_UI {
     
     public void play() {
         System.out.println("AI vs AI game starting!");
-        System.out.println("Enter AI #1's thinking time in seconds: ");
+        System.out.println("Enter thinking times for the AIs (in iterations)");
+        System.out.println("Under 100 is very fast but bad play, over 10 000 is very slow but good play. For demoing I recommend 1000-5000");
+        System.out.println("Enter AI #1's thinking time: ");
         int aiOneTime = Integer.parseInt(this.scanner.nextLine());
         
-        System.out.println("Enter AI #2's thinking time in seconds: ");
+        System.out.println("Enter AI #2's thinking time: ");
         int aiTwoTime = Integer.parseInt(this.scanner.nextLine());
         
         ISMCTS aiOne = new ISMCTS(this.state, aiOneTime);
         ISMCTS aiTwo = new ISMCTS(this.state, aiTwoTime);
         
+        int turnsPlayed = 0;
+        
         while (!this.state.getAvailableMoves().isEmpty() && !this.state.roundOver()) {
-            System.out.println("It's player " + this.state.getCurrentPlayer().getId() + "'s turn!");
-            System.out.println("His hand is " + this.state.getCurrentPlayer().getHand());
+            System.out.println(this.state);
             
             Move nextMove;
             
@@ -41,16 +44,13 @@ public class AIvsAI_UI {
                 nextMove = aiTwo.run();
             }
             
-            System.out.println("Next move by player " + this.state.getCurrentPlayer().getId() + " is: " + nextMove.toString());
             this.state.doMove(nextMove);
-            if (this.state.getCurrentPlayer().getId() == 2) {
-                break;
-            }
+            turnsPlayed++;
         }
         
+        System.out.println("----------------------------");
         System.out.println("AI #" + this.state.getCurrentPlayer().getId() + " won this round!");
         System.out.println("They got " + this.state.calculateRoundPoints() + " points!");
-        
-        System.out.println(this.state.getCurrentPlayer().getHand());
+        System.out.println("Turns played: " + turnsPlayed);
     }
 }

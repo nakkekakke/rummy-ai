@@ -16,6 +16,11 @@ public class DrawMove extends Move {
     public boolean isDeckDraw() {
         return this.isDeckDraw;
     }
+    
+    @Override
+    public DrawMove copy() {
+        return new DrawMove(super.getPlayer(), this.isDeckDraw);
+    }
 
     @Override
     public String type() {
@@ -50,10 +55,7 @@ public class DrawMove extends Move {
             return false;
         }
         final DrawMove other = (DrawMove) obj;
-        if (this.isDeckDraw != other.isDeckDraw) {
-            return false;
-        }
-        return true;
+        return this.isDeckDraw == other.isDeckDraw;
     }
     
 }

@@ -18,6 +18,7 @@ public class NodeTest {
     @Before
     public void setUp() {
         this.node = new Node(null, null, new Player(1));
+        
     }
 
     @Test
@@ -44,6 +45,16 @@ public class NodeTest {
         
         assertEquals(allMoves.size() - 1, untriedMoves.size());
         assertFalse(untriedMoves.contains(nowTried));
+    }
+    
+    @Test
+    public void selectChildChoosesCorrectChild() {
+        List<Move> possibleMoves = TestUtil.getAvailableMoves("meld");
+        TestUtil.createSearchTree(this.node);
+        Node drawNode = this.node.getChildren().get(0);
+        Node child = drawNode.selectChild(possibleMoves, 0.7);
+        
+        assertEquals(drawNode.getChildren().get(0), child);
     }
 
 }

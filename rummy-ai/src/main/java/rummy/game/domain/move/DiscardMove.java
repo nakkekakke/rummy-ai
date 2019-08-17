@@ -18,6 +18,11 @@ public class DiscardMove extends Move {
     public Card getCard() {
         return this.card;
     }
+    
+    @Override
+    public DiscardMove copy() {
+        return new DiscardMove(super.getPlayer(), this.card);
+    }
 
     @Override
     public String type() {

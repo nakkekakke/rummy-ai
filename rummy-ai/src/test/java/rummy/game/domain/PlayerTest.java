@@ -44,7 +44,7 @@ public class PlayerTest {
             if (card1.getSuit().value > card2.getSuit().value) {
                 inOrder = false;
                 break;
-            } else if (card1.getSuit().equals(card2.getSuit().value) && card1.getValue() > card2.getValue()) {
+            } else if (card1.getSuit().equals(card2.getSuit().value) && card1.getRank() > card2.getRank()) {
                 inOrder = false;
                 break;
             }

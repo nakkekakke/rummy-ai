@@ -12,11 +12,16 @@ public class MeldMove extends Move {
 
     public MeldMove(Player player, Meld meld) {
         super(player);
-        this.meld = meld;
+        this.meld = meld.copy();
     }
     
     public Meld getMeld() {
         return this.meld;
+    }
+    
+    @Override
+    public MeldMove copy() {
+        return new MeldMove(super.getPlayer(), this.meld.copy());
     }
 
     @Override
@@ -48,10 +53,6 @@ public class MeldMove extends Move {
             return false;
         }
         final MeldMove other = (MeldMove) obj;
-        if (!Objects.equals(this.meld, other.meld)) {
-            return false;
-        }
-        return true;
+        return this.meld.equals(other.meld);
     }
-    
 }

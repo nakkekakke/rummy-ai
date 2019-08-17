@@ -21,7 +21,7 @@ public class RunMeld extends Meld {
     public boolean layOffAllowed(Card card) {
         Card first = super.getCards().getFirst();
         Card last = super.getCards().getLast();
-        return card.getSuit().equals(first.getSuit()) && (( card.getValue() == first.getValue() - 1 ) || ( card.getValue() == last.getValue() + 1 ));
+        return card.getSuit().equals(first.getSuit()) && (( card.getRank() == first.getRank() - 1 ) || ( card.getRank() == last.getRank() + 1 ));
     }
 
     // FIRST CHECK IF ALLOWED !!!
@@ -29,17 +29,22 @@ public class RunMeld extends Meld {
     public void layoff(Card card) {
         Card first = super.getCards().getFirst();
         Card last = super.getCards().getLast();
-        if (card.getValue() == first.getValue() - 1) {
+        if (card.getRank() == first.getRank() - 1) {
             super.getCards().addFirst(card);
-        } else if (card.getValue() == last.getValue() + 1) {
+        } else if (card.getRank() == last.getRank() + 1) {
             super.getCards().addLast(card);
         }
+    }
+    
+    @Override
+    public RunMeld copy() {
+        LinkedList<Card> copyCards = new LinkedList<>();
+        copyCards.addAll(super.getCards());
+        return new RunMeld(super.getPlayer(), copyCards);
     }
 
     @Override
     public String type() {
         return "run";
     }
-    
-    
 }

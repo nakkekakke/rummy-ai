@@ -17,24 +17,26 @@ import rummy.game.domain.move.MeldMove;
 import rummy.game.domain.move.Move;
 import rummy.game.domain.move.PassMove;
 
+// The class representing the state of the game, changes after every move
 public class State {
     
-    private static final int DECK_SIZE = 52;
-    private static final int MAX_HAND_SIZE = 10;
-    private static final int PLAYER_COUNT = 2;
-    private static final String[] phases = {"draw", "meld", "layoff", "discard"};
-    private final Logger log = new Logger(false);
-    private Player currentPlayer;
-    private Player waitingPlayer;
+    private static final int DECK_SIZE = 52; // Rummy uses a standard 52 card deck
+    private static final int MAX_HAND_SIZE = 10; // Players can have up to 10 cards in their hands after a turn ends (11 after draw and before discarding)
+    private static final int PLAYER_COUNT = 2; // This version is a 2 player game
+
+    private final Logger log = new Logger(false); // Not in use
+    private Player currentPlayer; // The player whose turn it is now
+    private Player waitingPlayer; // The player whose turn it isn't
     private Card[] deck;
     private Stack<Card> discardPile;
-    private List<Meld> melds;
-    private String phase;
-    private Meld currentMeld; // meld used this turn
-    private Card[][] knownHandCards;
-    private Card discardDraw;
+    private List<Meld> melds; // Melds played this round
+    private String phase; // Current phase of the game
+    //private static final String[] phases = {"draw", "meld", "layoff", "discard", "end"};
+    private Meld currentMeld; // Meld used this turn
+    private Card[][] knownHandCards; // Players' hand cards that are known to both players
+    private Card discardDraw; // The card that was drawn from the discard pile this turn (this card cannot be discarded at the end of this turn)
     
-    // for starting a new game
+    // For starting a new game
     public State(int currentPlayerId) {
         this.currentPlayer = new Player(currentPlayerId);
         this.waitingPlayer = new Player((currentPlayerId % PLAYER_COUNT) + 1);
@@ -47,7 +49,7 @@ public class State {
         this.deal();
     }
     
-    // for starting a new round
+    // For starting a new round (player points are saved)
     public State(Player currentPlayer, Player waitingPlayer) {
         this.currentPlayer = currentPlayer;
         this.waitingPlayer = waitingPlayer;
@@ -60,7 +62,7 @@ public class State {
         this.deal();
     }
     
-    // for cloning
+    // For cloning
     public State(Player currentPlayer, Player waitingPlayer, Card[] deck, Stack<Card> discardPile, List<Meld> melds, String phase, Card[][] knownHandCards, Meld currentMeld, Card discardDraw) {
         this.currentPlayer = currentPlayer;
         this.waitingPlayer = waitingPlayer;
@@ -137,12 +139,14 @@ public class State {
         return this.knownHandCards;
     }
     
+    // Done at the start of every round
     private void deal() {
         this.deck = shuffleDeck(createDeck());
         initializeHands();
         initialDraw();
     }
     
+    // Creates a fresh 52 card deck (not shuffled)
     public final Card[] createDeck() {
         Card[] newDeck = new Card[DECK_SIZE];
         
@@ -171,6 +175,7 @@ public class State {
         return deck;
     }
     
+    // Deals cards to both players' hands and shuffles them
     private void initializeHands() {
         this.currentPlayer.setHand(new ArrayList<>());
         this.waitingPlayer.setHand(new ArrayList<>());
@@ -192,6 +197,7 @@ public class State {
         this.deck = newDeck;
     }
     
+    // Done during every deal, a card from the deck is added to the empty discard pile
     public void initialDraw() {
         Card draw = this.deck[0];
         Card[] newDeck = shortenDeckByN(this.deck, 1);
@@ -200,6 +206,7 @@ public class State {
         this.discardPile.push(draw);
     }
     
+    // Returns a card drawn from the deck and removes that card from the deck
     public Card drawFromDeck() {
         Card draw = this.deck[0];
         Card[] newDeck = shortenDeckByN(this.deck, 1);
@@ -207,7 +214,6 @@ public class State {
         
         if (newDeck.length == 0) {
             this.deck = this.refillDeckFromDiscardPile();
-            System.out.println("Deck refilled");
         }
         
         this.currentPlayer.addToHand(draw);
@@ -216,6 +222,7 @@ public class State {
         return draw;
     }
     
+    // Removes n cards from the top of the deck
     private Card[] shortenDeckByN(Card[] deck, int n) {
         Card[] newDeck = new Card[deck.length - n];
         for (int i = 0; i < newDeck.length; i++) {
@@ -224,6 +231,7 @@ public class State {
         return newDeck;
     }
     
+    // After the deck runs out, a new deck is formed out of the discard pile
     private Card[] refillDeckFromDiscardPile() {
         Card discardTop = this.discardPile.pop();
         Card[] newDeck = new Card[this.discardPile.size()];
@@ -250,30 +258,30 @@ public class State {
         return draw;
     }
     
-    // assumes that hand cards are in order !!!
+    // Finds all possible melds for the current player. Assumes that hand cards are in order !!!
     public List<Meld> findPossibleMelds() {
         List<Meld> possibleMelds = new ArrayList<>();
         List<Card> hand = this.currentPlayer.getHand();
         
-        int[][] ranks = new int[13][5]; // first column is rank count (index is rank number), 
-                                        // other 4 columns are for card indices in hand (indices are +1 so 0 means that card isnt in hand) for each possible rank card
+        int[][] ranks = new int[13][5]; // The first column is rank count (index is rank number), 
+                                        // The other 4 columns are for card indices in hand (indices are +1 so 0 means that card isn't in hand) for each possible rank card
         
-        // (RUN) MAIN LOOP, represents the lower index
+        // (RUN MELDS) MAIN LOOP, represents the lower index
         for (int i = 0; i < hand.size(); i++) {
             
-            // count ranks while searching for run melds for extra efficiency
-            ranks[hand.get(i).getValue() - 1][0]++; 
+            // Count ranks while searching for run melds for extra efficiency
+            ranks[hand.get(i).getRank() - 1][0]++; 
             for (int x = 1; x < 5; x++) {
-                if (ranks[hand.get(i).getValue() - 1][x] == 0) {
-                    ranks[hand.get(i).getValue() - 1][x] = i + 1;
+                if (ranks[hand.get(i).getRank() - 1][x] == 0) {
+                    ranks[hand.get(i).getRank() - 1][x] = i + 1;
                     break;
                 } 
             }
             
-            // (RUN) SECONDARY LOOP, represents the higher index. Finds all possible run melds of any length (>= 3) between the two indices
+            // (RUN MELDS) SECONDARY LOOP, represents the higher index. Finds all possible run melds of any length (>= 3) between the two indices
             for (int j = i + 1; j < hand.size(); j++) {
                 
-                if ( (hand.get(i).getSuit() == hand.get(j).getSuit()) && (hand.get(i).getValue() == hand.get(j).getValue() - (j - i)) ) {
+                if ( (hand.get(i).getSuit() == hand.get(j).getSuit()) && (hand.get(i).getRank() == hand.get(j).getRank() - (j - i)) ) {
                     if (j - i >= 2) {
                         LinkedList<Card> meldCards = new LinkedList<>();
                         for (int k = i; k <= j; k++) {
@@ -291,17 +299,9 @@ public class State {
             }
         }
         
-//        log.debug("Meld array:");
-//        for (int[] rank : ranks) {
-//            for(int x : rank) {
-//                log.print(Integer.toString(x));
-//            }
-//            log.print("NEXT");
-//        }
-        
         // All run melds found, now find all set melds using rank data gathered earlier
         
-        // (SET) MAIN LOOP
+        // (SET MELDS) MAIN LOOP
         for (int i = 0; i < 13; i++) {
             
             // Create a 3-long meld when you have 3 of the same rank in hand (simple)
@@ -318,7 +318,7 @@ public class State {
             // Create one 4-long meld and every possible 3-long meld when you have 4 of the same rank in hand (first skip 1st card, then second etc)
             } else if (ranks[i][0] == 4) {
                 
-                // Loop through all 5 indices in one ranks[][] row rank[5], skipping the first value (count). Also one extra loop to create one 4-long meld.
+                // Loop through all 5 indices in one ranks[][] row (array length 5), skipping the first value (count). Also one extra loop to create one 4-long meld.
                 for (int j = 1; j < 6; j++) {
                     
                     LinkedList<Card> meldCards = new LinkedList<>();
@@ -335,16 +335,19 @@ public class State {
         return possibleMelds;
     }
     
+    // Creates a meld, removes the melded cards from the hand and starts layoff phase
     public Meld meld(Meld meld) {
         for (int i = 0; i < meld.getCards().size(); i++) {
             this.currentPlayer.discard(meld.getCards().get(i));
+            removeFromKnownHandCards(meld.getCards().get(i), this.currentPlayer);
         }
-        this.melds.add(meld);
+        this.melds.add(meld.copy());
         this.currentMeld = meld;
         this.phase = "layoff";
         return meld;
     }
     
+    // Finds possible layoffs for the current player
     public List<Layoff> findPossibleLayoffs() {
         List<Layoff> layoffs = new ArrayList<>();
         List<Card> hand = this.currentPlayer.getHand();
@@ -358,26 +361,32 @@ public class State {
         return layoffs;
     }
     
+    // Creates a layoff, removes the laid-off card from hand
     public void layoff(Layoff layoff) {
         this.currentPlayer.discard(layoff.getCard());
+        removeFromKnownHandCards(layoff.getCard(), this.currentPlayer);
         layoff.getMeld().layoff(layoff.getCard());
     }
     
+    // Starts the discard phase after all wanted layoffs have been done
     public void layoffDone() {
         this.phase = "discard";
     }
     
+    // Discards hand card by index
     public Card discardCardNumber(int number) {
         Card card = this.currentPlayer.getHand().get(number);
         this.discard(card);
         return card;
     }
-        
+    
+    // Discards a hand card and starts the end phase
     public void discard(Card card) {
         this.discardPile.push(card);
         this.currentPlayer.discard(card);
         removeFromKnownHandCards(card, this.currentPlayer);
         this.currentMeld = null;
+        this.phase = "end";
     }
     
     public void endTurn() {
@@ -387,11 +396,12 @@ public class State {
         this.phase = "draw";
         this.discardDraw = null;
     }
-     
+    
+    // Calculates the points for the winner of this round
     public int calculateRoundPoints() {
         int sum = 0;
         for (int i = 0; i < this.waitingPlayer.getHand().size(); i++) {
-            int rank = this.waitingPlayer.getHand().get(i).getValue();
+            int rank = this.waitingPlayer.getHand().get(i).getRank();
             if (rank >= 10) {
                 sum += 10;
             } else {
@@ -413,9 +423,9 @@ public class State {
         return currentPlayer.getHand().isEmpty();
     }
     
-    // remove in the future
+    // Implement in the future
     public boolean gameOver() {
-        return false;
+        return this.currentPlayer.getPoints() >= 100 || this.waitingPlayer.getPoints() >= 100;
     }
     
     @Override
@@ -429,6 +439,7 @@ public class State {
     // "THE AI METHODS"
     //
     
+    // Returns all possible moves from this state
     public List<Move> getAvailableMoves() {
         List<Move> moves = new ArrayList<>();
         if (roundOver()) {
@@ -458,6 +469,8 @@ public class State {
                     }
                 }
                 break;
+            case "end":
+                moves.add(new PassMove(this.currentPlayer, "end"));
             default:
                 break;
         }
@@ -465,6 +478,7 @@ public class State {
         return moves;
     }
     
+    // Does a move and changes this state directly
     public void doMove(Move move) {
         switch (move.type()) {
             case "draw":
@@ -514,9 +528,12 @@ public class State {
             this.phase = "layoff";
         } else if (this.phase.equals("layoff")) {
             this.phase = "discard";
+        } else if (this.phase.equals("end")) {
+            endTurn();
         }
     }
     
+    // Creates a "deep" clone of this state (deep enough for the AI)
     @SuppressWarnings("unchecked")
     public State cloneState() {
         List<Meld> cloneMelds = new ArrayList<>();
@@ -525,47 +542,68 @@ public class State {
             Meld meld = this.melds.get(i);
             Meld cloneMeld;
             
+            LinkedList<Card> cloneMeldCards = new LinkedList<>();
+            cloneMeldCards.addAll(meld.getCards());
+            
             if (meld.type().equals("run")) {
-                cloneMeld = new RunMeld(new Player(meld.getPlayer()), (LinkedList<Card>) meld.getCards().clone());
+                cloneMeld = new RunMeld(new Player(meld.getPlayer()), cloneMeldCards);
             } else {
-                cloneMeld = new SetMeld(new Player(meld.getPlayer()), (LinkedList<Card>) meld.getCards().clone());
+                cloneMeld = new SetMeld(new Player(meld.getPlayer()), cloneMeldCards);
             }
             
             cloneMelds.add(cloneMeld);
+        }
+        
+        Stack<Card> discardPileClone = new Stack<>();
+        discardPileClone.addAll(discardPile);
+        
+        if (this.currentMeld != null) {
+            return new State(
+                new Player(this.currentPlayer), 
+                new Player(this.waitingPlayer), 
+                this.deck.clone(), 
+                discardPileClone, 
+                cloneMelds, 
+                this.phase, 
+                this.knownHandCards.clone(), 
+                this.currentMeld.copy(),
+                this.discardDraw
+            );
         }
         
         return new State(
                 new Player(this.currentPlayer), 
                 new Player(this.waitingPlayer), 
                 this.deck.clone(), 
-                (Stack<Card>) this.discardPile.clone(), 
+                discardPileClone, 
                 cloneMelds, 
                 this.phase, 
-                this.knownHandCards, 
-                this.currentMeld,
+                this.knownHandCards.clone(), 
+                null,
                 this.discardDraw
         );
     }
     
+    // Randomizes all hidden information of the state from the AI's perspective
     public State cloneAndRandomizeState() {
         State clone = cloneState();
         
         Card[] knownCards = new Card[DECK_SIZE];
         int knownIndex = 0;
         
-        // add own hand cards to known cards
+        // Add own hand cards to known cards
         for (Card card : clone.getCurrentPlayer().getHand()) {
             knownCards[knownIndex] = card;
             knownIndex++;
         }
         
-        // add discard pile to known cards
+        // Add discard pile to known cards
         for (Card card : clone.getDiscardPile()) {
             knownCards[knownIndex] = card;
             knownIndex++;
         }
          
-        // add all melds to known cards
+        // Add all melds to known cards
         for (Meld meld : clone.getMelds()) {
             for (Card card : meld.getCards()) {
                 knownCards[knownIndex] = card;
@@ -573,7 +611,7 @@ public class State {
             }
         }
 
-        // add known opponent's hand cards to known cards
+        // Add already known opponent's hand cards to known cards
         for (int j = 0; j < MAX_HAND_SIZE + 1; j++) {
             if (clone.getKnownHandCards()[clone.getWaitingPlayer().getId() - 1][j] != null) {
                 knownCards[knownIndex] = clone.getKnownHandCards()[clone.getWaitingPlayer().getId() - 1][j];
@@ -585,11 +623,11 @@ public class State {
         Card[] unknownCards = new Card[DECK_SIZE - knownIndex];
         Card[] fullDeck = createDeck();
         
-        // add every card but the known cards to unknown cards
+        // Add every card except the known cards to unknown cards
         for (int i = 0; i < DECK_SIZE; i++) {
             boolean known = false;
             
-            for (int j = 0; j < knownCards.length; j++) {
+            for (int j = 0; j < knownIndex; j++) {
                 if (fullDeck[i].equals(knownCards[j])) {
                     known = true;
                     break;
@@ -607,22 +645,23 @@ public class State {
         Card[] opponentKnownCards = clone.getKnownHandCards()[clone.getWaitingPlayer().getId() - 1];
         ArrayList<Card> opponentHandGuess = new ArrayList<>();
         
-        // add cards that we know are in opponent's hand to "opponent's hand guess"
+        // Add cards that are known to be in opponent's hand to "opponent's hand guess"
         for (int i = 0; i < opponentKnownCards.length; i++) {
             if (opponentKnownCards[i] != null) {
                 opponentHandGuess.add(opponentKnownCards[i]);
             }
         }
         
-        // add random cards to "opponent's hand guess" until the size is same as the actual hand
+        // Add random cards to "opponent's hand guess" until the size is same as the actual hand
         int i;
-        for (i = 0; i < clone.getOpponentHandSize() - opponentHandGuess.size(); i++) {
+        int handSize = opponentHandGuess.size();
+        for (i = 0; i < clone.getOpponentHandSize() - handSize; i++) {
             opponentHandGuess.add(unknownCards[i]);
         }
         
         unknownCards = shortenDeckByN(unknownCards, i);
         
-        // set randomized hidden data to clone state
+        // Set randomized hidden data to the cloned state
         clone.getWaitingPlayer().setHand(opponentHandGuess);
         clone.setDeck(unknownCards);
         
@@ -637,18 +676,16 @@ public class State {
     // 60 points = 0.8
     // 80 points = 0.9
     // 100 points = win = 1.0
+    // Get the result for the AI from the winner's perspective
     public double getWinResult() {
-        double result = -1.0;
+        double result;
         int points = calculateRoundPoints();
         
-        if (roundOver()) {
-            if (points >= 100) {
-                result = 1;
-            } else {
-                result = 0.5 + (points / 200.0);
-            }
+        if (points >= 100) {
+            result = 1;
+        } else {
+            result = 0.5 + (points / 200.0);
         }
-        
         return result;
     }
 

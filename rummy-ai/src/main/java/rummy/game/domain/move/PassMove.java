@@ -16,6 +16,11 @@ public class PassMove extends Move {
     public String getPhase() {
         return this.phase;
     }
+    
+    @Override
+    public PassMove copy() {
+        return new PassMove(super.getPlayer(), this.phase);
+    }
 
     @Override
     public String type() {

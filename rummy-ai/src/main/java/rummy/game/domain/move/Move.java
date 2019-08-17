@@ -14,7 +14,8 @@ public abstract class Move {
     public Player getPlayer() {
         return this.player;
     }
-
+    
+    public abstract Move copy();
     
     public abstract String type();
 }

@@ -256,7 +256,7 @@ public class StateTest {
         
         assertFalse(hand.contains(randomCard));
         assertEquals(randomCard, state.getDiscardPileTop());
-        assertEquals("discard", state.getPhase());
+        assertEquals("end", state.getPhase());
     }
     
     @Test
@@ -290,7 +290,7 @@ public class StateTest {
         
         state.updateWinnerPoints();
         
-        assertEquals(77, winner.getPoints());
+        assertEquals(74, winner.getPoints());
         assertEquals(0, loser.getPoints());
     }
     

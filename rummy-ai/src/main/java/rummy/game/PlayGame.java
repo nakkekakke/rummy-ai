@@ -27,7 +27,7 @@ public class PlayGame {
         System.out.println("Welcome to Rummy!");
         
         System.out.println("To play an AI vs AI game, choose 1");
-        System.out.println("To play a player vs player game, choose 2");
+        System.out.println("To play a player vs player game, choose 2 (probably not working as of now so choose 1)");
         
         String gameType = scanner.nextLine();
         
