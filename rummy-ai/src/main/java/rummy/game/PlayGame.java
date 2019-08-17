@@ -7,6 +7,7 @@ import rummy.game.domain.Card;
 import rummy.game.domain.Layoff;
 import rummy.game.domain.Player;
 import rummy.game.domain.State;
+import rummy.game.ui.AIvsAI_UI;
 
 
 public class PlayGame {
@@ -22,6 +23,13 @@ public class PlayGame {
 //        } else {
 //            log = new Logger(false);
 //        }
+
+        System.out.println("Welcome to Rummy!");
+        
+        System.out.println("To play an AI vs AI game, choose 1");
+        System.out.println("To play a player vs player game, choose 2 (probably not working as of now so choose 1)");
+        
+        String gameType = scanner.nextLine();
         
         State state;
         System.out.println("Which player goes first? Type 1 or 2");
@@ -31,6 +39,23 @@ public class PlayGame {
         } else {
             state = new State(2);
         }
+        
+        if (gameType.equals("1")) {
+            playAIvAIGame(state);
+        } else {
+            playPvPGame(scanner, state);
+        }
+        
+        
+    }
+
+    private static void playAIvAIGame(State state) {
+        AIvsAI_UI aiUI = new AIvsAI_UI(state);
+        aiUI.play();
+    }
+
+    private static void playPvPGame(Scanner scanner, State state) {
+
         
         while (true) {
             System.out.println("------------------");

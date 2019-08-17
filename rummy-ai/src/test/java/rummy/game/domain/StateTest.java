@@ -250,6 +250,7 @@ public class StateTest {
         Random random = new Random();
         int randomIndex = random.nextInt(hand.size());
         Card randomCard = hand.get(randomIndex);
+        state.setPhase("discard");
         
         state.discardCardNumber(randomIndex);
         
@@ -289,7 +290,7 @@ public class StateTest {
         
         state.updateWinnerPoints();
         
-        assertEquals(77, winner.getPoints());
+        assertEquals(74, winner.getPoints());
         assertEquals(0, loser.getPoints());
     }
     

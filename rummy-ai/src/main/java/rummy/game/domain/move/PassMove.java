@@ -1,43 +1,41 @@
 package rummy.game.domain.move;
 
 import java.util.Objects;
-import rummy.game.domain.move.Move;
-import rummy.game.domain.Card;
 import rummy.game.domain.Player;
 
 
-public class DiscardMove extends Move {
+public class PassMove extends Move {
     
-    private Card card; // card to discard from hand
-
-    public DiscardMove(Player player, Card card) {
+    private String phase;
+    
+    public PassMove(Player player, String phase) {
         super(player);
-        this.card = card;
+        this.phase = phase;
     }
     
-    public Card getCard() {
-        return this.card;
+    public String getPhase() {
+        return this.phase;
     }
     
     @Override
-    public DiscardMove copy() {
-        return new DiscardMove(super.getPlayer(), this.card);
+    public PassMove copy() {
+        return new PassMove(super.getPlayer(), this.phase);
     }
 
     @Override
     public String type() {
-        return "discard";
+        return "pass";
     }
     
     @Override
     public String toString() {
-        return "Discard " + this.card;
+        return "Pass";
     }
 
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 79 * hash + Objects.hashCode(this.card);
+        int hash = 7;
+        hash = 29 * hash + Objects.hashCode(this.phase);
         return hash;
     }
 
@@ -52,8 +50,8 @@ public class DiscardMove extends Move {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final DiscardMove other = (DiscardMove) obj;
-        if (!Objects.equals(this.card, other.card)) {
+        final PassMove other = (PassMove) obj;
+        if (!Objects.equals(this.phase, other.phase)) {
             return false;
         }
         return true;

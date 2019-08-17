@@ -20,7 +20,7 @@ public class SetMeld extends Meld {
 
     @Override
     public boolean layOffAllowed(Card card) {
-        return (card.getValue() == super.getCards().getFirst().getValue()) && !isFull();
+        return (card.getRank() == super.getCards().getFirst().getRank()) && !isFull();
     }
     
     // FIRST CHECK IF ALLOWED !!!
@@ -28,10 +28,16 @@ public class SetMeld extends Meld {
     public void layoff(Card card) {
         super.getCards().add(card);
     }
+    
+    @Override
+    public SetMeld copy() {
+        LinkedList<Card> copyCards = new LinkedList<>();
+        copyCards.addAll(super.getCards());
+        return new SetMeld(super.getPlayer(), copyCards);
+    }
 
     @Override
     public String type() {
         return "set";
     }
-
 }
