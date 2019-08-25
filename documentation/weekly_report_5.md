@@ -12,4 +12,4 @@ All good!
 
 Next week I will focus on doing documentation.
 
-#### Time spent this week: 25 hours
+#### Time spent this week: 15 hours
