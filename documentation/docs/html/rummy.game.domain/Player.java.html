@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Player.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">rummy-ai</a> &gt; <a href="index.source.html" class="el_package">rummy.game.domain</a> &gt; <span class="el_source">Player.java</span></div><h1>Player.java</h1><pre class="source lang-java linenums">package rummy.game.domain;
+
+import java.util.ArrayList;
+import java.util.List;
+
+// Represents a player (only 2 players)
+public class Player {
+    
+    private final int id;
+    private int points;
+    private List&lt;Card&gt; hand;
+    
+<span class="fc" id="L13">    public Player(int id) {</span>
+<span class="fc" id="L14">        this.id = id;</span>
+<span class="fc" id="L15">        this.points = 0;</span>
+<span class="fc" id="L16">        this.hand = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L17">    }</span>
+    
+    // Clones a player
+<span class="fc" id="L20">    public Player(Player player) {</span>
+<span class="fc" id="L21">        this.id = player.getId();</span>
+<span class="fc" id="L22">        this.points = player.getPoints();</span>
+<span class="fc" id="L23">        this.hand = new ArrayList&lt;&gt;();</span>
+        
+<span class="fc bfc" id="L25" title="All 2 branches covered.">        for (Card card : player.getHand()) {</span>
+<span class="fc" id="L26">            this.hand.add(card);</span>
+<span class="fc" id="L27">        }</span>
+<span class="fc" id="L28">    }</span>
+    
+    public int getId() {
+<span class="fc" id="L31">        return this.id;</span>
+    }
+    
+    public int getPoints() {
+<span class="fc" id="L35">        return this.points;</span>
+    }
+    
+    public void setPoints(int points) {
+<span class="fc" id="L39">        this.points = points;</span>
+<span class="fc" id="L40">    }</span>
+    
+    public List&lt;Card&gt; getHand() {
+<span class="fc" id="L43">        return this.hand;</span>
+    }
+    
+    public void setHand(List&lt;Card&gt; hand) {
+<span class="fc" id="L47">        this.hand = hand;</span>
+<span class="fc" id="L48">    }</span>
+    
+    public void addToHand(Card card) {
+<span class="fc" id="L51">        this.hand.add(card);</span>
+<span class="fc" id="L52">    }</span>
+    
+    public void discard(Card card) {
+<span class="fc" id="L55">        this.hand.remove(card);</span>
+<span class="fc" id="L56">    }</span>
+    
+    public void organizeHand() {
+<span class="fc bfc" id="L59" title="All 2 branches covered.">        for (int i = 0; i &lt; this.hand.size(); i++) {</span>
+<span class="fc bfc" id="L60" title="All 2 branches covered.">            for (int j = 0; j &lt; this.hand.size(); j++) {</span>
+<span class="fc bfc" id="L61" title="All 2 branches covered.">                if (this.hand.get(i).getSuit().value &lt; this.hand.get(j).getSuit().value) {</span>
+<span class="fc" id="L62">                    Card helper = this.hand.get(i);</span>
+<span class="fc" id="L63">                    this.hand.set(i, this.hand.get(j));</span>
+<span class="fc" id="L64">                    this.hand.set(j, helper);</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">                } else if (this.hand.get(i).getSuit().value == this.hand.get(j).getSuit().value) {</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">                    if (this.hand.get(i).getRank() &lt; this.hand.get(j).getRank()) {</span>
+<span class="fc" id="L67">                        Card helper = this.hand.get(i);</span>
+<span class="fc" id="L68">                        this.hand.set(i, this.hand.get(j));</span>
+<span class="fc" id="L69">                        this.hand.set(j, helper);</span>
+                    }
+                }
+            }
+        }
+<span class="fc" id="L74">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

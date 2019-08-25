@@ -41,7 +41,7 @@ public class PlayGame {
         }
         
         if (gameType.equals("1")) {
-            playAIvAIGame(state);
+            playAIvAIGame(state.getCurrentPlayer().getId(), scanner);
         } else {
             playPvPGame(scanner, state);
         }
@@ -49,8 +49,8 @@ public class PlayGame {
         
     }
 
-    private static void playAIvAIGame(State state) {
-        AIvsAI_UI aiUI = new AIvsAI_UI(state);
+    private static void playAIvAIGame(int startingPlayerId, Scanner scanner) {
+        AIvsAI_UI aiUI = new AIvsAI_UI(startingPlayerId, scanner);
         aiUI.play();
     }
 
@@ -155,7 +155,7 @@ public class PlayGame {
 
                         int layoffChoice = Integer.parseInt(scanner.nextLine());
                             if (layoffChoice != 0) {
-                                state.layoff(layoffs.get(layoffChoice - 1));
+                                state.layoff(layoffs.get(layoffChoice - 1), false);
                                 System.out.println("Laid " + layoffs.get(layoffChoice - 1).getCard() + " into meld " + layoffs.get(layoffChoice - 1).getMeld().getCards());
                                 searchForLayoffs = true;
                             } else {

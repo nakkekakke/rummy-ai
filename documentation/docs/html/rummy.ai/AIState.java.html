@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AIState.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">rummy-ai</a> &gt; <a href="index.source.html" class="el_package">rummy.ai</a> &gt; <span class="el_source">AIState.java</span></div><h1>AIState.java</h1><pre class="source lang-java linenums">package rummy.ai;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Stack;
+import rummy.game.domain.Card;
+import rummy.game.domain.Layoff;
+import rummy.game.domain.Player;
+import rummy.game.domain.State;
+import rummy.game.domain.meld.Meld;
+import rummy.game.domain.meld.RunMeld;
+import rummy.game.domain.meld.SetMeld;
+import rummy.game.domain.move.DiscardMove;
+import rummy.game.domain.move.DrawMove;
+import rummy.game.domain.move.LayoffMove;
+import rummy.game.domain.move.MeldMove;
+import rummy.game.domain.move.Move;
+
+// state of the game used by the AI
+public class AIState extends State {
+
+    public AIState(Player currentPlayer, Player waitingPlayer, Card[] deck, Stack&lt;Card&gt; discardPile, List&lt;Meld&gt; melds, String phase, Card[][] knownHandCards, Meld currentMeld) {
+<span class="nc" id="L24">        super(currentPlayer, waitingPlayer, deck, discardPile, melds, phase, knownHandCards, currentMeld);</span>
+<span class="nc" id="L25">    }    </span>
+    
+    public List&lt;Move&gt; getAvailableMoves() {
+<span class="nc" id="L28">        List&lt;Move&gt; moves = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L29" title="All 14 branches missed.">        switch (this.phase) {</span>
+            case &quot;draw&quot;:
+<span class="nc" id="L31">                moves.add(new DrawMove(this.currentPlayer, this, true));</span>
+<span class="nc" id="L32">                moves.add(new DrawMove(this.currentPlayer, this, false));</span>
+<span class="nc" id="L33">                break;</span>
+            case &quot;meld&quot;:
+<span class="nc bnc" id="L35" title="All 2 branches missed.">                for (Meld meld : super.findPossibleMelds()) {</span>
+<span class="nc" id="L36">                    moves.add(new MeldMove(this.currentPlayer, this, meld));</span>
+<span class="nc" id="L37">                }</span>
+<span class="nc" id="L38">                break;</span>
+            case &quot;layoff&quot;:
+<span class="nc bnc" id="L40" title="All 2 branches missed.">                for (Layoff layoff : super.findPossibleLayoffs()) {</span>
+<span class="nc" id="L41">                    moves.add(new LayoffMove(this.currentPlayer, this, layoff));</span>
+<span class="nc" id="L42">                }</span>
+<span class="nc" id="L43">                break;</span>
+            default:
+                break;
+        }
+        
+<span class="nc" id="L48">        return moves;</span>
+    }
+    
+    public void doMove(Move move) {
+<span class="nc bnc" id="L52" title="All 18 branches missed.">        switch (move.type()) {</span>
+            case &quot;draw&quot;:
+<span class="nc" id="L54">                doDrawMove((DrawMove) move);</span>
+<span class="nc" id="L55">                break;</span>
+            case &quot;meld&quot;:
+<span class="nc" id="L57">                doMeldMove((MeldMove) move);</span>
+<span class="nc" id="L58">                break;</span>
+            case &quot;layoff&quot;:
+<span class="nc" id="L60">                doLayoffMove((LayoffMove) move);</span>
+<span class="nc" id="L61">                break;</span>
+            case &quot;discard&quot;:
+<span class="nc" id="L63">                doDiscardMove((DiscardMove) move);</span>
+<span class="nc" id="L64">                break;</span>
+            default:
+<span class="nc" id="L66">                System.out.println(&quot;Oopsie&quot;);</span>
+                break;
+        }
+<span class="nc" id="L69">    }</span>
+    
+    private void doDrawMove(DrawMove move) {
+<span class="nc bnc" id="L72" title="All 2 branches missed.">        if (move.isDeckDraw()) {</span>
+<span class="nc" id="L73">            super.drawFromDeck();</span>
+        } else {
+<span class="nc" id="L75">            super.drawFromDiscardPile();</span>
+        }
+<span class="nc" id="L77">    }</span>
+    
+    private void doMeldMove(MeldMove move) {
+<span class="nc" id="L80">        super.meld(move.getMeld());</span>
+<span class="nc" id="L81">    }</span>
+    
+    private void doLayoffMove(LayoffMove move) {
+<span class="nc" id="L84">        super.layoff(move.getLayoff());</span>
+<span class="nc" id="L85">    }</span>
+    
+    private void doDiscardMove(DiscardMove move) {
+<span class="nc" id="L88">        super.discard(move.getCard());</span>
+<span class="nc" id="L89">    }</span>
+    
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public State cloneState() {
+<span class="nc" id="L93">        List&lt;Meld&gt; cloneMelds = new ArrayList&lt;&gt;();</span>
+        
+<span class="nc bnc" id="L95" title="All 2 branches missed.">        for (int i = 0; i &lt; this.melds.size(); i++) {</span>
+<span class="nc" id="L96">            Meld meld = this.melds.get(i);</span>
+            Meld cloneMeld;
+            
+<span class="nc bnc" id="L99" title="All 2 branches missed.">            if (meld.type().equals(&quot;run&quot;)) {</span>
+<span class="nc" id="L100">                cloneMeld = new RunMeld(new Player(meld.getPlayer()), (LinkedList&lt;Card&gt;) meld.getCards().clone());</span>
+            } else {
+<span class="nc" id="L102">                cloneMeld = new SetMeld(new Player(meld.getPlayer()), (LinkedList&lt;Card&gt;) meld.getCards().clone());</span>
+            }
+            
+<span class="nc" id="L105">            cloneMelds.add(cloneMeld);</span>
+        }
+        
+<span class="nc" id="L108">        return new State(</span>
+                new Player(this.currentPlayer), 
+                new Player(this.waitingPlayer), 
+<span class="nc" id="L111">                this.deck.clone(), </span>
+<span class="nc" id="L112">                (Stack&lt;Card&gt;) this.discardPile.clone(), </span>
+                cloneMelds, 
+                this.phase, 
+                this.knownHandCards, 
+                this.currentMeld
+        );
+    }
+    
+    public State cloneAndRandomizeState() {
+<span class="nc" id="L121">        State clone = cloneState();</span>
+        
+<span class="nc" id="L123">        Card[] knownCards = new Card[DECK_SIZE];</span>
+<span class="nc" id="L124">        int knownIndex = 0;</span>
+        
+        // add own hand cards to known cards
+<span class="nc bnc" id="L127" title="All 2 branches missed.">        for (Card card : clone.getCurrentPlayer().getHand()) {</span>
+<span class="nc" id="L128">            knownCards[knownIndex] = card;</span>
+<span class="nc" id="L129">            knownIndex++;</span>
+<span class="nc" id="L130">        }</span>
+        
+        // add discard pile to known cards
+<span class="nc bnc" id="L133" title="All 2 branches missed.">        for (Card card : clone.getDiscardPile()) {</span>
+<span class="nc" id="L134">            knownCards[knownIndex] = card;</span>
+<span class="nc" id="L135">            knownIndex++;</span>
+<span class="nc" id="L136">        }</span>
+        
+        // add all melds to known cards
+<span class="nc bnc" id="L139" title="All 2 branches missed.">        for (Meld meld : clone.getMelds()) {</span>
+<span class="nc bnc" id="L140" title="All 2 branches missed.">            for (Card card : meld.getCards()) {</span>
+<span class="nc" id="L141">                knownCards[knownIndex] = card;</span>
+<span class="nc" id="L142">                knownIndex++;</span>
+<span class="nc" id="L143">            }</span>
+<span class="nc" id="L144">        }</span>
+        
+        // add known opponent's hand cards to known cards
+<span class="nc bnc" id="L147" title="All 2 branches missed.">        for (int j = 0; j &lt; MAX_HAND_SIZE + 1; j++) {</span>
+<span class="nc bnc" id="L148" title="All 2 branches missed.">            if (clone.getKnownHandCards()[clone.getWaitingPlayer().getId()][j] != null) {</span>
+<span class="nc" id="L149">                knownCards[knownIndex] = clone.getKnownHandCards()[clone.getWaitingPlayer().getId()][j];</span>
+<span class="nc" id="L150">                knownIndex++;</span>
+            }
+        }
+        
+<span class="nc" id="L154">        int unknownIndex = 0;</span>
+<span class="nc" id="L155">        Card[] unknownCards = new Card[DECK_SIZE - knownCards.length];</span>
+<span class="nc" id="L156">        Card[] fullDeck = createDeck();</span>
+        
+        // add every card but the known cards to unknown cards
+<span class="nc bnc" id="L159" title="All 2 branches missed.">        for (int i = 0; i &lt; DECK_SIZE; i++) {</span>
+<span class="nc" id="L160">            boolean known = false;</span>
+            
+<span class="nc bnc" id="L162" title="All 2 branches missed.">            for (int j = 0; j &lt; knownCards.length; j++) {</span>
+<span class="nc bnc" id="L163" title="All 2 branches missed.">                if (fullDeck[i].equals(knownCards[j])) {</span>
+<span class="nc" id="L164">                    known = true;</span>
+<span class="nc" id="L165">                    break;</span>
+                }
+            }
+            
+<span class="nc bnc" id="L169" title="All 2 branches missed.">            if (!known) {</span>
+<span class="nc" id="L170">                unknownCards[unknownIndex] = fullDeck[i];</span>
+            }
+        }
+        
+<span class="nc" id="L174">        unknownCards = super.shuffleDeck(unknownCards);</span>
+
+<span class="nc" id="L176">        Card[] opponentKnownCards = clone.getKnownHandCards()[clone.getWaitingPlayer().getId()];</span>
+<span class="nc" id="L177">        ArrayList&lt;Card&gt; opponentHandGuess = new ArrayList&lt;&gt;();</span>
+        
+        // add cards that we know are in opponent's hand to &quot;opponent's hand guess&quot;
+<span class="nc bnc" id="L180" title="All 2 branches missed.">        for (int i = 0; i &lt; opponentKnownCards.length; i++) {</span>
+<span class="nc bnc" id="L181" title="All 2 branches missed.">            if (opponentKnownCards[i] != null) {</span>
+<span class="nc" id="L182">                opponentHandGuess.add(opponentKnownCards[i]);</span>
+            }
+        }
+        
+        // add random cards to &quot;opponent's hand guess&quot; until the size is same as the actual hand
+        int i;
+<span class="nc bnc" id="L188" title="All 2 branches missed.">        for (i = 0; i &lt; clone.getOpponentHandSize() - opponentHandGuess.size(); i++) {</span>
+<span class="nc" id="L189">            opponentHandGuess.add(unknownCards[i]);</span>
+        }
+        
+<span class="nc" id="L192">        unknownCards = super.shortenDeckByN(unknownCards, i);</span>
+        
+        // set randomized hidden data to clone state
+<span class="nc" id="L195">        clone.getWaitingPlayer().setHand(opponentHandGuess);</span>
+<span class="nc" id="L196">        clone.setDeck(unknownCards);</span>
+        
+<span class="nc" id="L198">        return clone;</span>
+    }
+
+    
+    // 1 point = 0.505
+    // 10 points = 0.55
+    // 20 points = 0.6
+    // 50 points = 0.75
+    // 60 points = 0.8
+    // 80 points = 0.9
+    // 100 points = win = 1.0
+    public double getAIWinResult() {
+<span class="nc" id="L210">        double result = -1.0;</span>
+<span class="nc" id="L211">        int points = super.calculateRoundPoints();</span>
+        
+<span class="nc bnc" id="L213" title="All 2 branches missed.">        if (roundOver()) {</span>
+<span class="nc bnc" id="L214" title="All 2 branches missed.">            if (points &gt;= 100) {</span>
+<span class="nc" id="L215">                result = 1;</span>
+            } else {
+<span class="nc" id="L217">                result = 0.5 + (points / 200.0);</span>
+            }
+        }
+        
+<span class="nc" id="L221">        return result;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

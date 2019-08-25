@@ -16,6 +16,8 @@
 
 - [Week 4](https://github.com/nakkekakke/rummy-ai/blob/master/documentation/weekly_report_4.md)
 
+- [Week 5](https://github.com/nakkekakke/rummy-ai/blob/master/documentation/weekly_report_5.md)
+
 
 [**Game rules**](https://www.pagat.com/rummy/rummy.html)
 

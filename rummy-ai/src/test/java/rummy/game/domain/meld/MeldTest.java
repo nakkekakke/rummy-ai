@@ -95,6 +95,18 @@ public class MeldTest {
         assertTrue(this.setMeld.getCards().contains(card));
     }
     
+    @Test
+    public void equalsWorksCorrectly() {
+        setUpSetMeld();
+        setUpRunMeld();
+        
+        Meld runMeld2 = new RunMeld(this.player, TestUtil.generateRunMeldCards(4, 7, Suit.CLUBS));
+        Meld setMeld2 = new SetMeld(this.player, TestUtil.generateSetMeldCards(10, 3));
+        
+        assertEquals(runMeld2, this.runMeld);
+        assertEquals(setMeld2, this.setMeld);
+    }
+    
     private void setUpRunMeld() {
         this.runMeld = new RunMeld(player, TestUtil.generateRunMeldCards(4, 7, Suit.CLUBS));
     }

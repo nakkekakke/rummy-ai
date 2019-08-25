@@ -1,12 +1,11 @@
 package rummy.game.domain.move;
 
-import rummy.game.domain.move.Move;
 import rummy.game.domain.Player;
 
 
 public class DrawMove extends Move {
     
-    private boolean isDeckDraw; // true if deck draw, false if discard pile draw
+    private final boolean isDeckDraw; // true if deck draw, false if discard pile draw
 
     public DrawMove(Player player, boolean isDeckDraw) {
         super(player);

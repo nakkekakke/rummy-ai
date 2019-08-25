@@ -362,10 +362,21 @@ public class State {
     }
     
     // Creates a layoff, removes the laid-off card from hand
-    public void layoff(Layoff layoff) {
+    public void layoff(Layoff layoff, boolean aiSelection) {
         this.currentPlayer.discard(layoff.getCard());
         removeFromKnownHandCards(layoff.getCard(), this.currentPlayer);
-        layoff.getMeld().layoff(layoff.getCard());
+        Meld meld = layoff.getMeld();
+        
+        if (!aiSelection) {
+            for (int i = 0; i < this.melds.size(); i++) {
+                if (this.melds.get(i).getCards().equals(meld.getCards())) {
+                    meld.layoff(layoff.getCard());
+                    this.melds.set(i, meld);
+                }
+            }
+        } else {
+            layoff.getMeld().copy().layoff(layoff.getCard());
+        }
     }
     
     // Starts the discard phase after all wanted layoffs have been done
@@ -418,19 +429,22 @@ public class State {
     public State startNewRound() {
         return new State(this.waitingPlayer, this.currentPlayer); // loser starts the next round
     }
+    
+    public boolean turnOver() {
+        return this.phase.equals("end");
+    }
         
     public boolean roundOver() {
         return currentPlayer.getHand().isEmpty();
     }
     
-    // Implement in the future
     public boolean gameOver() {
-        return this.currentPlayer.getPoints() >= 100 || this.waitingPlayer.getPoints() >= 100;
+        return this.currentPlayer.getPoints() >= 100;
     }
     
     @Override
     public String toString() {
-        return "Current: " + this.currentPlayer.getId() + ", " + this.currentPlayer.getHand() + ", waiting: " + this.waitingPlayer.getId() + ", " + this.waitingPlayer.getHand() + ", melds: " + this.melds;
+        return "Current player: " + this.currentPlayer.getId() + ", " + this.currentPlayer.getHand() + ", waiting player: " + this.waitingPlayer.getId() + ", " + this.waitingPlayer.getHand() + ", melds: " + this.melds;
     }
     
     
@@ -479,7 +493,7 @@ public class State {
     }
     
     // Does a move and changes this state directly
-    public void doMove(Move move) {
+    public void doMove(Move move, boolean aiSelection) {
         switch (move.type()) {
             case "draw":
                 doDrawMove((DrawMove) move);
@@ -488,11 +502,10 @@ public class State {
                 doMeldMove((MeldMove) move);
                 break;
             case "layoff":
-                doLayoffMove((LayoffMove) move);
+                doLayoffMove((LayoffMove) move, aiSelection);
                 break;
             case "discard":
                 doDiscardMove((DiscardMove) move);
-                endTurn();
                 break;
             case "pass":
                 doPassMove();
@@ -515,8 +528,8 @@ public class State {
         meld(move.getMeld());
     }
     
-    private void doLayoffMove(LayoffMove move) {
-        layoff(move.getLayoff());
+    private void doLayoffMove(LayoffMove move, boolean aiSelection) {
+        layoff(move.getLayoff(), aiSelection);
     }
     
     private void doDiscardMove(DiscardMove move) {

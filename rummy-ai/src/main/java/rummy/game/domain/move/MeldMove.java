@@ -3,16 +3,15 @@ package rummy.game.domain.move;
 import java.util.Objects;
 import rummy.game.domain.meld.Meld;
 import rummy.game.domain.Player;
-import rummy.game.domain.move.Move;
 
 
 public class MeldMove extends Move {
     
-    private Meld meld;
+    private final Meld meld;
 
     public MeldMove(Player player, Meld meld) {
         super(player);
-        this.meld = meld.copy();
+        this.meld = meld;
     }
     
     public Meld getMeld() {

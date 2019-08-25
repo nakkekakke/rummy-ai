@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ISMCTS.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">rummy-ai</a> &gt; <a href="index.source.html" class="el_package">rummy.ai</a> &gt; <span class="el_source">ISMCTS.java</span></div><h1>ISMCTS.java</h1><pre class="source lang-java linenums">package rummy.ai;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import rummy.game.domain.Player;
+import rummy.game.domain.State;
+import rummy.game.domain.meld.Meld;
+import rummy.game.domain.move.Move;
+
+// The class representing the Information Set Monte Carlo tree search
+public class ISMCTS {
+    
+    private State rootState; // The current state of the real game from which the algorithm tries to find the optimal move
+    private State currentState;  // The current state of the simulated game
+    private List&lt;Move&gt; possibleMoves; // List of all possible moves from currentState
+    private Node currentNode; // The node currently
+    private int limit; // Iteration limit for searching the best move
+    private static final double EXPL = 0.7; // Exploration factor for UCT child selection, can be adjusted to make the AI play differently
+    private Random random;
+    private int reshuffles; // The amount of times the deck has been exhausted without progress in the game (high reshuffles = potentially a never ending game)
+    
+<span class="fc" id="L23">    public ISMCTS(State rootState, int limit) {</span>
+<span class="fc" id="L24">        this.rootState = rootState;</span>
+<span class="fc" id="L25">        this.limit = limit;</span>
+<span class="fc" id="L26">        this.random = new Random();</span>
+<span class="fc" id="L27">        this.reshuffles = 0;</span>
+<span class="fc" id="L28">    }</span>
+
+    public State getRootState() {
+<span class="fc" id="L31">        return this.rootState;</span>
+    }
+    
+    public void setRootState(State rootState) {
+<span class="fc" id="L35">        this.rootState = rootState;</span>
+<span class="fc" id="L36">    }</span>
+
+    public int getLimit() {
+<span class="nc" id="L39">        return this.limit;</span>
+    }
+    
+    public Move run() {
+        
+        // Root node represents the current game situation
+<span class="fc" id="L45">        Node rootNode = new Node(null, null, this.rootState.getCurrentPlayer());</span>
+        
+<span class="fc" id="L47">        long start = System.currentTimeMillis();</span>
+//        long end = start + (limit * 1000);
+        
+<span class="fc" id="L50">        int loopCounter = 0;</span>
+        
+        // Main loop of the tree search
+<span class="fc bfc" id="L53" title="All 2 branches covered.">        while (loopCounter &lt; limit) {</span>
+<span class="fc" id="L54">            this.currentNode = rootNode;</span>
+            
+            // 1. Clone and determinize the state of the game (randomize information unknown to the AI)
+<span class="fc" id="L57">            this.currentState = this.rootState.cloneAndRandomizeState();</span>
+            
+<span class="fc" id="L59">            this.possibleMoves = this.currentState.getAvailableMoves();</span>
+            
+            // 2. Select the most promising child node
+<span class="fc" id="L62">            selectChildISMCTS();</span>
+            
+            // 3. Expand the tree by creating a new child node for the selected node
+<span class="fc" id="L65">            expandTreeISMCTS();</span>
+            
+            // 4. Simulate by doing random moves from the expanded node until the game ends
+<span class="fc" id="L68">            simulateISMCTS();</span>
+            
+            // 5. Backpropagate the simulation result from the expanded node (in step 3) to every node along the way to the root
+<span class="fc" id="L71">            backPropagateISMCTS();</span>
+            
+<span class="fc" id="L73">            loopCounter++;</span>
+        }
+        
+        //System.out.println(rootNode.treeToString(0)); // uncomment to visualize the tree, useful for debugging
+        
+        // Find the best move using backpropagated results
+<span class="fc" id="L79">        Node best = rootNode.getChildren().get(0);</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">        for (Node child : rootNode.getChildren()) {</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">            if (child.getVisits() &gt; best.getVisits()) {</span>
+<span class="fc" id="L82">                best = child;</span>
+            }
+<span class="fc" id="L84">        }</span>
+        
+        //System.out.println(&quot;Simulated &quot; + loopCounter + &quot; games!&quot;);
+        //long end = System.currentTimeMillis() - start;
+        //System.out.println(&quot;This took &quot; + end + &quot; ms&quot;);
+<span class="fc" id="L89">        return best.getMove();</span>
+    }
+    
+    private void selectChildISMCTS() {
+<span class="pc bpc" id="L93" title="2 of 6 branches missed.">        while ((!possibleMoves.isEmpty() &amp;&amp; !this.currentState.roundOver()) &amp;&amp; this.currentNode.getUntriedMoves(this.possibleMoves).isEmpty()) { // While every move option has been explored and the game hasn't ended</span>
+<span class="fc" id="L94">            this.currentNode = this.currentNode.selectChild(this.possibleMoves, EXPL); // Descend the tree</span>
+<span class="fc" id="L95">            this.currentState.doMove(this.currentNode.getMove(), true); // Update the state</span>
+<span class="fc" id="L96">            this.possibleMoves = this.currentState.getAvailableMoves(); // Possible moves change after a move so we have to redo this here</span>
+        }
+        
+<span class="fc" id="L99">    }</span>
+    
+    private void expandTreeISMCTS() {
+<span class="fc" id="L102">        List&lt;Move&gt; untriedMoves = this.currentNode.getUntriedMoves(this.possibleMoves);</span>
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">        if (!untriedMoves.isEmpty()) { // If the game didn't end yet</span>
+<span class="fc" id="L104">            Move randomMove = untriedMoves.get(this.random.nextInt(untriedMoves.size())); // Do a random move</span>
+<span class="fc" id="L105">            Player currentPlayer = this.currentState.getCurrentPlayer(); // Store current player in case the turn ends after the move</span>
+<span class="pc bpc" id="L106" title="1 of 4 branches missed.">            if (this.possibleMoves.size() == 1 &amp;&amp; randomMove.type().equals(&quot;pass&quot;)) { // If the only possible move is a &quot;pass&quot;, do the move but skip creating a node out of it and simulating that because there is no decision to be made</span>
+<span class="fc" id="L107">                this.currentState.doMove(randomMove, false);</span>
+<span class="fc" id="L108">                this.possibleMoves = this.currentState.getAvailableMoves();</span>
+<span class="fc" id="L109">                selectChildISMCTS();</span>
+<span class="fc" id="L110">                expandTreeISMCTS();</span>
+            } else {
+<span class="fc" id="L112">                this.currentNode = this.currentNode.addChild(randomMove, currentPlayer); // Add a child representing the new move and descend the tree</span>
+<span class="fc" id="L113">                this.currentState.doMove(randomMove, false);</span>
+            }
+        }
+<span class="fc" id="L116">    }</span>
+    
+    private void simulateISMCTS() {
+<span class="fc" id="L119">        this.possibleMoves = this.currentState.getAvailableMoves();</span>
+<span class="fc" id="L120">        List&lt;Meld&gt; oldMelds = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L121">        int oldPlayerId = this.currentState.getCurrentPlayer().getId();</span>
+<span class="fc" id="L122">        this.reshuffles = 0;</span>
+
+<span class="pc bpc" id="L124" title="1 of 4 branches missed.">        while (!this.possibleMoves.isEmpty() &amp;&amp; !this.currentState.roundOver()) {</span>
+            // Check if deck has been exhausted many times and melds have not changed (to detect never ending games / draws), this is buggy atm so the threshold is high)
+<span class="fc bfc" id="L126" title="All 4 branches covered.">            if (this.currentState.getDeck().length == 1 &amp;&amp; oldPlayerId != this.currentState.getCurrentPlayer().getId()) {</span>
+<span class="pc bpc" id="L127" title="1 of 2 branches missed.">                if (oldMelds.containsAll(this.currentState.getMelds())) {</span>
+<span class="fc" id="L128">                    this.reshuffles++;</span>
+<span class="fc bfc" id="L129" title="All 2 branches covered.">                    if (this.reshuffles == 20) {</span>
+<span class="fc" id="L130">                        break;</span>
+                    }
+                } else {
+<span class="nc" id="L133">                    this.reshuffles = 0;</span>
+                }
+            }
+<span class="fc" id="L136">            oldMelds = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L137" title="All 2 branches covered.">            for (Meld meld : this.currentState.getMelds()) {</span>
+<span class="fc" id="L138">                oldMelds.add(meld.copy());</span>
+<span class="fc" id="L139">            }</span>
+<span class="fc" id="L140">            oldPlayerId = this.currentState.getCurrentPlayer().getId();</span>
+
+            // Do the random move and update possible moves
+<span class="fc" id="L143">            this.currentState.doMove(this.possibleMoves.get(this.random.nextInt(this.possibleMoves.size())), false);</span>
+<span class="fc" id="L144">            this.possibleMoves = this.currentState.getAvailableMoves();</span>
+        }
+<span class="fc" id="L146">    }</span>
+    
+    private void backPropagateISMCTS() {
+        double result;
+<span class="fc bfc" id="L150" title="All 2 branches covered.">        if (this.reshuffles == 20) {</span>
+<span class="fc" id="L151">            result = 0.5;</span>
+        } else {
+<span class="fc" id="L153">             result = this.currentState.getWinResult();</span>
+        }
+
+<span class="fc bfc" id="L156" title="All 2 branches covered.">        while (this.currentNode != null) {</span>
+<span class="fc" id="L157">            this.currentNode.update(this.currentState.getCurrentPlayer(), result);</span>
+<span class="fc" id="L158">            this.currentNode = currentNode.getParent();</span>
+        }
+<span class="fc" id="L160">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

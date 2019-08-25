@@ -10,6 +10,12 @@ import static org.junit.Assert.*;
 import rummy.game.domain.meld.Meld;
 import rummy.game.domain.meld.RunMeld;
 import rummy.game.domain.meld.SetMeld;
+import rummy.game.domain.move.DiscardMove;
+import rummy.game.domain.move.DrawMove;
+import rummy.game.domain.move.LayoffMove;
+import rummy.game.domain.move.MeldMove;
+import rummy.game.domain.move.Move;
+import rummy.game.domain.move.PassMove;
 import rummy.testutil.TestUtil;
 
 public class StateTest {
@@ -177,6 +183,7 @@ public class StateTest {
     @Test
     public void layoffWorksCorrectly1() {
         List<Meld> melds = this.createMeldsAndLayoffableHand(state.getCurrentPlayer());
+        this.state.setMelds(melds);
         List<Card> hand = state.getCurrentPlayer().getHand();
         int initHandSize = hand.size();
         
@@ -184,24 +191,22 @@ public class StateTest {
         Layoff fourOfSpadesSet = new Layoff(hand.get(2), melds.get(1));
         Layoff eightOfSpadesRun = new Layoff(hand.get(3), melds.get(0));
         
-        assertFalse(fourOfSpadesRun.getMeld().getCards().contains(fourOfSpadesRun.getCard()));
-        assertFalse(fourOfSpadesSet.getMeld().getCards().contains(fourOfSpadesSet.getCard()));
-        assertFalse(eightOfSpadesRun.getMeld().getCards().contains(eightOfSpadesRun.getCard()));
-        
-        state.layoff(fourOfSpadesRun);
+        assertFalse(stateMeldsContainCard(fourOfSpadesRun.getCard()));
+        assertFalse(stateMeldsContainCard(eightOfSpadesRun.getCard()));
+
+        state.layoff(fourOfSpadesRun, false);
         
         assertFalse(hand.contains(fourOfSpadesRun.getCard()));
         assertFalse(hand.contains(fourOfSpadesSet.getCard()));
         assertTrue(hand.contains(eightOfSpadesRun.getCard()));
         
-        assertTrue(fourOfSpadesRun.getMeld().getCards().contains(fourOfSpadesRun.getCard()));
-        assertFalse(fourOfSpadesSet.getMeld().getCards().contains(fourOfSpadesSet.getCard()));
-        assertFalse(eightOfSpadesRun.getMeld().getCards().contains(eightOfSpadesRun.getCard()));
+        assertTrue(stateMeldsContainCard(fourOfSpadesRun.getCard()));
+        assertFalse(stateMeldsContainCard(eightOfSpadesRun.getCard()));
         
-        state.layoff(eightOfSpadesRun);
+        state.layoff(eightOfSpadesRun, false);
         
         assertFalse(hand.contains(eightOfSpadesRun.getCard()));
-        assertTrue(eightOfSpadesRun.getMeld().getCards().contains(eightOfSpadesRun.getCard()));
+        assertTrue(stateMeldsContainCard(eightOfSpadesRun.getCard()));
         
         assertEquals(initHandSize - 2, hand.size());
         
@@ -212,6 +217,7 @@ public class StateTest {
     @Test
     public void layoffWorksCorrectly2() {
         List<Meld> melds = this.createMeldsAndLayoffableHand(state.getCurrentPlayer());
+        this.state.setMelds(melds);
         List<Card> hand = state.getCurrentPlayer().getHand();
         int initHandSize = hand.size();
         
@@ -219,24 +225,22 @@ public class StateTest {
         Layoff fourOfSpadesSet = new Layoff(hand.get(2), melds.get(1));
         Layoff eightOfSpadesRun = new Layoff(hand.get(3), melds.get(0));
         
-        assertFalse(fourOfSpadesRun.getMeld().getCards().contains(fourOfSpadesRun.getCard()));
-        assertFalse(fourOfSpadesSet.getMeld().getCards().contains(fourOfSpadesSet.getCard()));
-        assertFalse(eightOfSpadesRun.getMeld().getCards().contains(eightOfSpadesRun.getCard()));
+        assertFalse(stateMeldsContainCard(fourOfSpadesRun.getCard()));
+        assertFalse(stateMeldsContainCard(eightOfSpadesRun.getCard()));
         
-        state.layoff(fourOfSpadesSet);
+        state.layoff(fourOfSpadesSet, false);
         
         assertFalse(hand.contains(fourOfSpadesRun.getCard()));
         assertFalse(hand.contains(fourOfSpadesSet.getCard()));
         assertTrue(hand.contains(eightOfSpadesRun.getCard()));
         
-        assertFalse(fourOfSpadesRun.getMeld().getCards().contains(fourOfSpadesRun.getCard()));
-        assertTrue(fourOfSpadesSet.getMeld().getCards().contains(fourOfSpadesSet.getCard()));
-        assertFalse(eightOfSpadesRun.getMeld().getCards().contains(eightOfSpadesRun.getCard()));
+        assertTrue(stateMeldsContainCard(fourOfSpadesSet.getCard()));
+        assertFalse(stateMeldsContainCard(eightOfSpadesRun.getCard()));
         
-        state.layoff(eightOfSpadesRun);
+        state.layoff(eightOfSpadesRun, false);
         
         assertFalse(hand.contains(eightOfSpadesRun.getCard()));
-        assertTrue(eightOfSpadesRun.getMeld().getCards().contains(eightOfSpadesRun.getCard()));
+        assertTrue(stateMeldsContainCard(eightOfSpadesRun.getCard()));
         
         assertEquals(initHandSize - 2, hand.size());
     }
@@ -260,7 +264,7 @@ public class StateTest {
     }
     
     @Test
-    public void endTurnWorksChangesPlayersAndPhase() {
+    public void endTurnChangesPlayersAndPhase() {
         Player current = state.getCurrentPlayer();
         Player waiting = state.getWaitingPlayer();
         state.setPhase("discard");
@@ -301,7 +305,79 @@ public class StateTest {
     
     @Test
     public void getAvailableMovesGetsCorrectMoves() {
+        List<Meld> melds = this.createMeldsAndLayoffableHand(this.state.getCurrentPlayer());
+        this.state.setMelds(melds);
         
+        // Draw
+        
+        Move deckDrawMove = new DrawMove(this.state.getCurrentPlayer(), true);
+        Move discardDrawMove = new DrawMove(this.state.getCurrentPlayer(), false);
+        
+        List<Move> moves = this.state.getAvailableMoves();
+        
+        assertTrue(moves.contains(deckDrawMove));
+        assertTrue(moves.contains(discardDrawMove));
+        assertEquals(2, moves.size());
+        
+        // Meld
+        
+        this.state.setPhase("meld");
+        
+        List<Meld> expectedMelds = createExpectedMelds(this.state.getCurrentPlayer());
+        
+        moves = this.state.getAvailableMoves();
+        assertEquals(5, moves.size());
+        
+        List<Move> expectedMoves = new ArrayList<>();
+        
+        expectedMoves.add(new MeldMove(this.state.getCurrentPlayer(), expectedMelds.get(0)));
+        expectedMoves.add(new MeldMove(this.state.getCurrentPlayer(), expectedMelds.get(1)));
+        expectedMoves.add(new MeldMove(this.state.getCurrentPlayer(), expectedMelds.get(2)));
+        expectedMoves.add(new MeldMove(this.state.getCurrentPlayer(), expectedMelds.get(3)));
+        expectedMoves.add(new PassMove(this.state.getCurrentPlayer(), "meld"));
+        
+        assertTrue(expectedMoves.containsAll(moves));
+        assertTrue(moves.containsAll(expectedMoves));
+        
+        // Layoff
+        
+        this.state.setPhase("layoff");
+        expectedMelds = createMeldsAndLayoffableHand(this.state.getCurrentPlayer());
+        
+        moves = this.state.getAvailableMoves();
+        List<Card> hand = this.state.getCurrentPlayer().getHand();
+        
+        expectedMoves = new ArrayList<>();
+        expectedMoves.add(new LayoffMove(this.state.getCurrentPlayer(), new Layoff(hand.get(2), expectedMelds.get(0))));
+        expectedMoves.add(new LayoffMove(this.state.getCurrentPlayer(), new Layoff(hand.get(3), expectedMelds.get(0))));
+        expectedMoves.add(new LayoffMove(this.state.getCurrentPlayer(), new Layoff(hand.get(2), expectedMelds.get(1))));
+        expectedMoves.add(new PassMove(this.state.getCurrentPlayer(), "layoff"));
+        
+        assertEquals(4, moves.size());
+        assertTrue(expectedMoves.containsAll(moves));
+        assertTrue(moves.containsAll(expectedMoves));
+        
+        // Discard
+        
+        this.state.setPhase("discard");
+        moves = this.state.getAvailableMoves();
+        expectedMoves = new ArrayList<>();
+        
+        for (Card card : hand) {
+            expectedMoves.add(new DiscardMove(this.state.getCurrentPlayer(), card));
+        }
+        
+        assertEquals(hand.size(), moves.size());
+        assertTrue(expectedMoves.containsAll(moves));
+        assertTrue(moves.containsAll(expectedMoves));
+        
+        // End
+        
+        this.state.setPhase("end");
+        moves = this.state.getAvailableMoves();
+        
+        assertEquals(1, moves.size());
+        assertEquals(new PassMove(this.state.getCurrentPlayer(), "end"), moves.get(0));
     }
     
     
@@ -405,5 +481,14 @@ public class StateTest {
         melds.add(new SetMeld(player, meldCards2));
         
         return melds;
+    }
+    
+    private boolean stateMeldsContainCard(Card card) {
+        for (Meld meld : this.state.getMelds()) {
+            if (meld.getCards().contains(card)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

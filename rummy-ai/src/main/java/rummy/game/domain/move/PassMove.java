@@ -6,7 +6,7 @@ import rummy.game.domain.Player;
 
 public class PassMove extends Move {
     
-    private String phase;
+    private final String phase;
     
     public PassMove(Player player, String phase) {
         super(player);
@@ -51,10 +51,7 @@ public class PassMove extends Move {
             return false;
         }
         final PassMove other = (PassMove) obj;
-        if (!Objects.equals(this.phase, other.phase)) {
-            return false;
-        }
-        return true;
+        return this.phase.equals(other.phase);
     }
     
 }

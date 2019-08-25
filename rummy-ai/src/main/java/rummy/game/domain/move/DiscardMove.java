@@ -1,14 +1,13 @@
 package rummy.game.domain.move;
 
 import java.util.Objects;
-import rummy.game.domain.move.Move;
 import rummy.game.domain.Card;
 import rummy.game.domain.Player;
 
 
 public class DiscardMove extends Move {
     
-    private Card card; // card to discard from hand
+    private final Card card; // card to discard from hand
 
     public DiscardMove(Player player, Card card) {
         super(player);

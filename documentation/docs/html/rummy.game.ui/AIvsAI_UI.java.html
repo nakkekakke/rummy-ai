@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AIvsAI_UI.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">rummy-ai</a> &gt; <a href="index.source.html" class="el_package">rummy.game.ui</a> &gt; <span class="el_source">AIvsAI_UI.java</span></div><h1>AIvsAI_UI.java</h1><pre class="source lang-java linenums">package rummy.game.ui;
+
+import java.util.Scanner;
+import rummy.ai.ISMCTS;
+import rummy.game.domain.State;
+import rummy.game.domain.move.Move;
+
+
+public class AIvsAI_UI {
+    
+    private State state;
+    private final Scanner scanner;
+    
+<span class="nc" id="L14">    public AIvsAI_UI(int startingPlayer, Scanner scanner) {</span>
+<span class="nc" id="L15">        this.state = new State(startingPlayer);</span>
+<span class="nc" id="L16">        this.scanner = scanner;</span>
+<span class="nc" id="L17">    }</span>
+    
+    public void play() {
+<span class="nc" id="L20">        System.out.println(&quot;AI vs AI game starting!&quot;);</span>
+<span class="nc" id="L21">        System.out.println(&quot;Enter thinking times for the AIs (in iterations)&quot;);</span>
+<span class="nc" id="L22">        System.out.println(&quot;Under 100 is very fast but bad play, over 10 000 is very slow but good play. For demoing I recommend 1000-5000&quot;);</span>
+<span class="nc" id="L23">        System.out.println(&quot;Enter AI #1's thinking time: &quot;);</span>
+<span class="nc" id="L24">        int aiOneTime = Integer.parseInt(this.scanner.nextLine());</span>
+        
+<span class="nc" id="L26">        System.out.println(&quot;Enter AI #2's thinking time: &quot;);</span>
+<span class="nc" id="L27">        int aiTwoTime = Integer.parseInt(this.scanner.nextLine());</span>
+        
+<span class="nc" id="L29">        int roundCount = 0;</span>
+        while (true) {
+<span class="nc" id="L31">            System.out.println(&quot;Starting a new round!&quot;);</span>
+
+
+<span class="nc" id="L34">            int turnsPlayed = 0;</span>
+
+<span class="nc bnc" id="L36" title="All 2 branches missed.">            while (!this.state.getAvailableMoves().isEmpty()) {</span>
+<span class="nc" id="L37">                System.out.println(this.state);</span>
+<span class="nc" id="L38">                ISMCTS aiOne = new ISMCTS(this.state, aiOneTime);</span>
+<span class="nc" id="L39">                ISMCTS aiTwo = new ISMCTS(this.state, aiTwoTime);</span>
+                Move nextMove;
+
+<span class="nc bnc" id="L42" title="All 2 branches missed.">                if (this.state.getCurrentPlayer().getId() == 1) {</span>
+<span class="nc" id="L43">                    aiOne.setRootState(this.state);</span>
+<span class="nc" id="L44">                    nextMove = aiOne.run();</span>
+                } else {
+<span class="nc" id="L46">                    aiTwo.setRootState(this.state);</span>
+<span class="nc" id="L47">                    nextMove = aiTwo.run();</span>
+                }
+                
+<span class="nc" id="L50">                System.out.println(&quot;Next move &quot; + nextMove);</span>
+<span class="nc" id="L51">                this.state.doMove(nextMove, false);</span>
+                
+<span class="nc bnc" id="L53" title="All 2 branches missed.">                if (this.state.roundOver()) {</span>
+<span class="nc" id="L54">                    break;</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">                } else if (this.state.turnOver()) {</span>
+<span class="nc" id="L56">                    this.state.endTurn();</span>
+                }
+<span class="nc" id="L58">                turnsPlayed++;</span>
+<span class="nc" id="L59">            }</span>
+            
+<span class="nc" id="L61">            this.state.updateWinnerPoints();</span>
+
+<span class="nc" id="L63">            System.out.println(&quot;---------------------------&quot;);</span>
+<span class="nc" id="L64">            System.out.println(&quot;AI #&quot; + this.state.getCurrentPlayer().getId() + &quot; won this round!&quot;);</span>
+<span class="nc" id="L65">            System.out.println(&quot;They got &quot; + this.state.calculateRoundPoints() + &quot; points from this round and have a total of&quot; + this.state.getCurrentPlayer().getPoints() + &quot; points!&quot;);</span>
+<span class="nc" id="L66">            System.out.println(&quot;The loser got 0 points from this round and has a total of &quot; + this.state.getWaitingPlayer().getPoints() + &quot; points!&quot;);</span>
+<span class="nc" id="L67">            System.out.println(&quot;Turns played: &quot; + turnsPlayed);</span>
+<span class="nc" id="L68">            roundCount++;</span>
+            
+<span class="nc bnc" id="L70" title="All 2 branches missed.">            if (this.state.gameOver()) {</span>
+<span class="nc" id="L71">                break;</span>
+            }
+            
+<span class="nc" id="L74">            this.state = this.state.startNewRound();</span>
+<span class="nc" id="L75">        }</span>
+        
+<span class="nc" id="L77">        System.out.println(&quot;Game over!&quot;);</span>
+<span class="nc" id="L78">        System.out.println(&quot;AI #&quot; + this.state.getCurrentPlayer().getId() + &quot; won the game by reaching 100 points first&quot;);</span>
+<span class="nc" id="L79">        System.out.println(&quot;Rounds played: &quot; + roundCount);</span>
+<span class="nc" id="L80">        System.out.println(&quot;---------------------------&quot;);</span>
+<span class="nc" id="L81">        System.out.println(&quot;----------RESULTS----------&quot;);</span>
+<span class="nc" id="L82">        System.out.println(&quot;AI #&quot; + this.state.getCurrentPlayer().getId() + &quot; got &quot; + this.state.getCurrentPlayer().getPoints() + &quot; points&quot;);</span>
+<span class="nc" id="L83">        System.out.println(&quot;AI #&quot; + this.state.getWaitingPlayer().getId() + &quot; got &quot; + this.state.getWaitingPlayer().getPoints() + &quot; points&quot;);</span>
+<span class="nc" id="L84">        System.out.println(&quot;---------------------------&quot;);</span>
+<span class="nc" id="L85">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

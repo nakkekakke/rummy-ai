@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PlayGame.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">rummy-ai</a> &gt; <a href="index.source.html" class="el_package">rummy.game</a> &gt; <span class="el_source">PlayGame.java</span></div><h1>PlayGame.java</h1><pre class="source lang-java linenums">package rummy.game;
+
+import rummy.game.domain.meld.Meld;
+import java.util.List;
+import java.util.Scanner;
+import rummy.game.domain.Card;
+import rummy.game.domain.Layoff;
+import rummy.game.domain.Player;
+import rummy.game.domain.State;
+import rummy.game.ui.AIvsAI_UI;
+
+
+<span class="nc" id="L13">public class PlayGame {</span>
+    
+    public static void main(String[] args) {
+<span class="nc" id="L16">        Scanner scanner = new Scanner(System.in);</span>
+//        Logger log; 
+//        
+//        System.out.println(&quot;Type y to start with debug logger&quot;);
+//        String debug = scanner.nextLine();
+//        if (debug.equals(&quot;y&quot;)) {
+//            log = new Logger(true);
+//        } else {
+//            log = new Logger(false);
+//        }
+
+<span class="nc" id="L27">        System.out.println(&quot;Welcome to Rummy!&quot;);</span>
+        
+<span class="nc" id="L29">        System.out.println(&quot;To play an AI vs AI game, choose 1&quot;);</span>
+<span class="nc" id="L30">        System.out.println(&quot;To play a player vs player game, choose 2 (probably not working as of now so choose 1)&quot;);</span>
+        
+<span class="nc" id="L32">        String gameType = scanner.nextLine();</span>
+        
+        State state;
+<span class="nc" id="L35">        System.out.println(&quot;Which player goes first? Type 1 or 2&quot;);</span>
+<span class="nc" id="L36">        String first = scanner.nextLine();</span>
+<span class="nc bnc" id="L37" title="All 2 branches missed.">        if (first.equals(&quot;1&quot;)) {</span>
+<span class="nc" id="L38">            state = new State(1);</span>
+        } else {
+<span class="nc" id="L40">            state = new State(2);</span>
+        }
+        
+<span class="nc bnc" id="L43" title="All 2 branches missed.">        if (gameType.equals(&quot;1&quot;)) {</span>
+<span class="nc" id="L44">            playAIvAIGame(state.getCurrentPlayer().getId(), scanner);</span>
+        } else {
+<span class="nc" id="L46">            playPvPGame(scanner, state);</span>
+        }
+        
+        
+<span class="nc" id="L50">    }</span>
+
+    private static void playAIvAIGame(int startingPlayerId, Scanner scanner) {
+<span class="nc" id="L53">        AIvsAI_UI aiUI = new AIvsAI_UI(startingPlayerId, scanner);</span>
+<span class="nc" id="L54">        aiUI.play();</span>
+<span class="nc" id="L55">    }</span>
+
+    private static void playPvPGame(Scanner scanner, State state) {
+
+        
+        while (true) {
+<span class="nc" id="L61">            System.out.println(&quot;------------------&quot;);</span>
+<span class="nc" id="L62">            System.out.println(&quot;&quot;);</span>
+<span class="nc" id="L63">            System.out.println(&quot;New round started!&quot;);</span>
+<span class="nc" id="L64">            System.out.println(&quot;&quot;);</span>
+<span class="nc" id="L65">            System.out.println(&quot;------------------&quot;);</span>
+
+            // GAME LOOP
+            while (true) {
+<span class="nc" id="L69">                Player currentPlayer = state.getCurrentPlayer();</span>
+<span class="nc" id="L70">                System.out.println(&quot;&quot;);</span>
+<span class="nc" id="L71">                System.out.println(&quot;-------------------------------&quot;);</span>
+<span class="nc" id="L72">                System.out.println(&quot;&quot;);</span>
+<span class="nc" id="L73">                System.out.println(&quot;It's player &quot; + currentPlayer.getId() + &quot;'s turn&quot;);</span>
+<span class="nc" id="L74">                System.out.println(&quot;Deck has &quot; + state.getDeckSize() + &quot; cards&quot;);</span>
+<span class="nc" id="L75">                System.out.println(&quot;Opponent has &quot; + state.getOpponentHandSize() + &quot; cards&quot;);</span>
+
+<span class="nc" id="L77">                List&lt;Meld&gt; currentMelds = state.getMelds();</span>
+
+<span class="nc bnc" id="L79" title="All 2 branches missed.">                if (!currentMelds.isEmpty()) {</span>
+<span class="nc" id="L80">                    System.out.println(&quot;Current melds on board are:&quot;);</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">                    for (Meld meld : currentMelds) {</span>
+<span class="nc" id="L82">                        System.out.println(meld.getCards());</span>
+<span class="nc" id="L83">                    }</span>
+                }
+
+
+<span class="nc" id="L87">                System.out.println(&quot;&quot;);</span>
+
+<span class="nc" id="L89">                System.out.println(&quot;Your hand:&quot;);</span>
+<span class="nc" id="L90">                System.out.println(currentPlayer.getHand());</span>
+<span class="nc" id="L91">                System.out.println(&quot;&quot;);</span>
+
+<span class="nc" id="L93">                System.out.println(&quot;Top card of the discard pile is &quot; + state.getDiscardPileTop());</span>
+<span class="nc" id="L94">                System.out.println(&quot;&quot;);</span>
+<span class="nc" id="L95">                System.out.println(&quot;Draw from deck (1) or discard pile (2)?&quot;);</span>
+<span class="nc" id="L96">                String drawChoice = scanner.nextLine();</span>
+                Card draw;
+<span class="nc bnc" id="L98" title="All 2 branches missed.">                if (drawChoice.equals(&quot;1&quot;)) {</span>
+<span class="nc" id="L99">                    draw = state.drawFromDeck();</span>
+                } else {
+<span class="nc" id="L101">                    draw = state.drawFromDiscardPile();</span>
+                }
+
+<span class="nc" id="L104">                System.out.println(&quot;Drew &quot; + draw);</span>
+
+<span class="nc" id="L106">                state.organizeCurrentHand();</span>
+
+<span class="nc" id="L108">                System.out.println(&quot;&quot;);</span>
+<span class="nc" id="L109">                System.out.println(&quot;Checking for possible melds in your hand&quot;);</span>
+<span class="nc" id="L110">                List&lt;Meld&gt; melds = state.findPossibleMelds();</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">                if (!melds.isEmpty()) {</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">                    for (int i = 0; i &lt; melds.size(); i++) {</span>
+<span class="nc" id="L113">                        System.out.println((i + 1) + &quot;: &quot; + melds.get(i).getCards());</span>
+<span class="nc" id="L114">                        System.out.println(&quot;&quot;);</span>
+                    }
+
+<span class="nc bnc" id="L117" title="All 2 branches missed.">                    if (melds.size() == 1) {</span>
+<span class="nc" id="L118">                        System.out.println(&quot;&quot;);</span>
+<span class="nc" id="L119">                        System.out.println(&quot;Select 1 to meld or 0 to not meld&quot;);</span>
+                    } else {
+<span class="nc" id="L121">                        System.out.println(&quot;Select which option to meld (1-&quot; + melds.size() + &quot;) or select 0 to not meld anything&quot;);</span>
+                    }
+
+<span class="nc" id="L124">                    int meldChoice = Integer.parseInt(scanner.nextLine());</span>
+
+<span class="nc bnc" id="L126" title="All 2 branches missed.">                    if (meldChoice != 0) {</span>
+<span class="nc" id="L127">                        Meld meld = state.meld(melds.get(meldChoice - 1));</span>
+<span class="nc" id="L128">                        System.out.println(&quot;Melded: &quot; + meld.getCards());</span>
+                    }
+
+<span class="nc" id="L131">                } else {</span>
+<span class="nc" id="L132">                    System.out.println(&quot;No possible melds in your hand&quot;);</span>
+                }
+
+
+<span class="nc" id="L136">                boolean searchForLayoffs = true;</span>
+
+<span class="nc bnc" id="L138" title="All 2 branches missed.">                while (searchForLayoffs) {</span>
+<span class="nc" id="L139">                    searchForLayoffs = false;</span>
+
+<span class="nc" id="L141">                    System.out.println(&quot;Checking for possible layoffs&quot;);</span>
+<span class="nc" id="L142">                    List&lt;Layoff&gt; layoffs = state.findPossibleLayoffs();</span>
+
+<span class="nc bnc" id="L144" title="All 2 branches missed.">                    if (!layoffs.isEmpty()) {</span>
+
+<span class="nc bnc" id="L146" title="All 2 branches missed.">                        if (layoffs.size() == 1) {</span>
+<span class="nc" id="L147">                            System.out.println(&quot;Select 1 to lay off or 0 to not lay off&quot;);</span>
+                        } else {
+<span class="nc" id="L149">                            System.out.println(&quot;Select option for layoff (1-&quot; + layoffs.size() + &quot; or select 0 to not lay off anything&quot;);</span>
+                        }
+
+<span class="nc bnc" id="L152" title="All 2 branches missed.">                        for (int i = 0; i &lt; layoffs.size(); i++) {</span>
+<span class="nc" id="L153">                            System.out.println((i+1) + &quot;: &quot; + layoffs.get(i).getCard() + &quot; into meld &quot; + layoffs.get(i).getMeld().getCards());</span>
+                        }
+
+<span class="nc" id="L156">                        int layoffChoice = Integer.parseInt(scanner.nextLine());</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">                            if (layoffChoice != 0) {</span>
+<span class="nc" id="L158">                                state.layoff(layoffs.get(layoffChoice - 1), false);</span>
+<span class="nc" id="L159">                                System.out.println(&quot;Laid &quot; + layoffs.get(layoffChoice - 1).getCard() + &quot; into meld &quot; + layoffs.get(layoffChoice - 1).getMeld().getCards());</span>
+<span class="nc" id="L160">                                searchForLayoffs = true;</span>
+                            } else {
+<span class="nc" id="L162">                                System.out.println(&quot;Skipping this layoff&quot;);</span>
+                            }
+
+<span class="nc" id="L165">                    } else {</span>
+<span class="nc" id="L166">                        System.out.println(&quot;No possible layoffs&quot;);</span>
+<span class="nc" id="L167">                        break;</span>
+                    }
+<span class="nc" id="L169">                }</span>
+
+<span class="nc bnc" id="L171" title="All 2 branches missed.">                if (state.roundOver()) {</span>
+<span class="nc" id="L172">                    break;</span>
+                }
+
+<span class="nc" id="L175">                System.out.println(&quot;&quot;);</span>
+<span class="nc" id="L176">                System.out.println(&quot;Select which card to discard (1-&quot; + currentPlayer.getHand().size() + &quot;)&quot;);</span>
+<span class="nc" id="L177">                System.out.println(currentPlayer.getHand());</span>
+<span class="nc" id="L178">                String discardChoice = scanner.nextLine();</span>
+<span class="nc" id="L179">                Card discarded = state.discardCardNumber(Integer.parseInt(discardChoice) - 1);</span>
+<span class="nc" id="L180">                System.out.println(discarded + &quot; discarded&quot;);</span>
+
+<span class="nc" id="L182">                System.out.println(&quot;&quot;);</span>
+
+<span class="nc bnc" id="L184" title="All 2 branches missed.">                if (state.roundOver()) {</span>
+<span class="nc" id="L185">                    break;</span>
+                }
+
+<span class="nc" id="L188">                System.out.println(&quot;End of turn&quot;);</span>
+
+<span class="nc" id="L190">                state.endTurn();</span>
+<span class="nc" id="L191">            }</span>
+            
+<span class="nc" id="L193">            System.out.println(&quot;Player &quot; + state.getCurrentPlayer().getId() + &quot; won this hand&quot;);</span>
+<span class="nc" id="L194">            System.out.println(&quot;Points awarded: &quot; + state.calculateRoundPoints());</span>
+            
+<span class="nc" id="L196">            state.updateWinnerPoints();</span>
+            
+<span class="nc" id="L198">            System.out.println(&quot;&quot;);</span>
+<span class="nc" id="L199">            System.out.println(&quot;Player &quot; + state.getCurrentPlayer().getId() + &quot; has &quot; + state.getCurrentPlayer().getPoints() + &quot; points&quot;);</span>
+<span class="nc" id="L200">            System.out.println(&quot;Player &quot; + state.getWaitingPlayer().getId() + &quot; has &quot; + state.getWaitingPlayer().getPoints() + &quot; points&quot;);</span>
+<span class="nc" id="L201">            System.out.println(&quot;&quot;);</span>
+
+<span class="nc bnc" id="L203" title="All 2 branches missed.">            if (state.gameOver()) {</span>
+<span class="nc" id="L204">                break;</span>
+            }
+            
+<span class="nc" id="L207">            state = state.startNewRound();</span>
+        }
+        
+<span class="nc" id="L210">        System.out.println(&quot;Player &quot; + state.getCurrentPlayer().getId() + &quot; reached 100 points and won the game!&quot;);</span>
+<span class="nc" id="L211">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

@@ -3,12 +3,11 @@ package rummy.game.domain.move;
 import java.util.Objects;
 import rummy.game.domain.Layoff;
 import rummy.game.domain.Player;
-import rummy.game.domain.move.Move;
 
 
 public class LayoffMove extends Move {
     
-    private Layoff layoff;
+    private final Layoff layoff;
 
     public LayoffMove(Player player, Layoff layoff) {
         super(player);
@@ -21,7 +20,7 @@ public class LayoffMove extends Move {
     
     @Override
     public LayoffMove copy() {
-        return new LayoffMove(super.getPlayer(), this.layoff);
+        return new LayoffMove(super.getPlayer(), this.layoff.copy());
     }
     
     @Override
@@ -53,10 +52,7 @@ public class LayoffMove extends Move {
             return false;
         }
         final LayoffMove other = (LayoffMove) obj;
-        if (!Objects.equals(this.layoff, other.layoff)) {
-            return false;
-        }
-        return true;
+        return this.layoff.equals(other.layoff);
     }
     
 }

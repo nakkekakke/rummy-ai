@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Node.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">rummy-ai</a> &gt; <a href="index.source.html" class="el_package">rummy.ai</a> &gt; <span class="el_source">Node.java</span></div><h1>Node.java</h1><pre class="source lang-java linenums">package rummy.ai;
+
+import java.util.ArrayList;
+import java.util.List;
+import rummy.game.domain.Player;
+import rummy.game.domain.move.Move;
+
+public class Node {
+    
+    private Node parent; // the parent of this node, null for root
+    private List&lt;Node&gt; children; // the child nodes of this node (one for every possible move from this node)
+    
+    private Move move; // move used to get to this node, null for root
+    private Player player; // player who is doing the move to get to this node, the starting player for root
+    private double totalScore; // sum of all simulation results from this node
+    private int visits; // times this node has been selected
+    private int considerations; // times this node has been considered for selection
+    
+<span class="fc" id="L19">    public Node(Node parent, Move move, Player player) {</span>
+<span class="fc" id="L20">        this.parent = parent;</span>
+<span class="fc" id="L21">        this.children = new ArrayList&lt;&gt;();</span>
+        
+<span class="fc" id="L23">        this.move = move;</span>
+<span class="fc" id="L24">        this.player = player;</span>
+<span class="fc" id="L25">        this.totalScore = 0.0;</span>
+<span class="fc" id="L26">        this.visits = 0;</span>
+<span class="fc" id="L27">        this.considerations = 1;</span>
+<span class="fc" id="L28">    }</span>
+
+    public Node getParent() {
+<span class="fc" id="L31">        return this.parent;</span>
+    }
+
+    public void setParent(Node parent) {
+<span class="nc" id="L35">        this.parent = parent;</span>
+<span class="nc" id="L36">    }</span>
+
+    public List&lt;Node&gt; getChildren() {
+<span class="fc" id="L39">        return this.children;</span>
+    }
+
+    public void setChildren(List&lt;Node&gt; children) {
+<span class="nc" id="L43">        this.children = children;</span>
+<span class="nc" id="L44">    }</span>
+
+    public Move getMove() {
+<span class="fc" id="L47">        return this.move;</span>
+    }
+
+    public void setMove(Move move) {
+<span class="nc" id="L51">        this.move = move;</span>
+<span class="nc" id="L52">    }</span>
+
+    public Player getPlayer() {
+<span class="fc" id="L55">        return this.player;</span>
+    }
+
+    public void setPlayer(Player player) {
+<span class="nc" id="L59">        this.player = player;</span>
+<span class="nc" id="L60">    }</span>
+
+    public double getTotalScore() {
+<span class="fc" id="L63">        return this.totalScore;</span>
+    }
+
+    public void setTotalScore(double totalScore) {
+<span class="fc" id="L67">        this.totalScore = totalScore;</span>
+<span class="fc" id="L68">    }</span>
+
+    public int getVisits() {
+<span class="fc" id="L71">        return this.visits;</span>
+    }
+
+    public void setVisits(int visits) {
+<span class="fc" id="L75">        this.visits = visits;</span>
+<span class="fc" id="L76">    }</span>
+
+    public int getConsiderations() {
+<span class="fc" id="L79">        return this.considerations;</span>
+    }
+
+    public void setConsiderations(int considerations) {
+<span class="fc" id="L83">        this.considerations = considerations;</span>
+<span class="fc" id="L84">    }</span>
+    
+    // Filter out all currently possible moves that have already been tried at least once
+    public List&lt;Move&gt; getUntriedMoves(List&lt;Move&gt; possibleMoves) {
+<span class="fc" id="L88">        List&lt;Move&gt; triedMoves = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">        for (Node child : this.children) {</span>
+<span class="fc" id="L90">            triedMoves.add(child.move);</span>
+<span class="fc" id="L91">        }</span>
+        
+<span class="fc" id="L93">        List&lt;Move&gt; untriedMoves = new ArrayList&lt;&gt;();</span>
+        
+<span class="fc bfc" id="L95" title="All 2 branches covered.">        for (Move possibleMove : possibleMoves) {</span>
+<span class="fc" id="L96">            boolean tried = false;</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">            for (Move triedMove : triedMoves) {</span>
+<span class="fc bfc" id="L98" title="All 2 branches covered.">                if (possibleMove.equals(triedMove)) {</span>
+<span class="fc" id="L99">                    tried = true;</span>
+<span class="fc" id="L100">                    break;</span>
+                }   
+<span class="fc" id="L102">            }</span>
+            
+<span class="fc bfc" id="L104" title="All 2 branches covered.">            if (!tried) {</span>
+<span class="fc" id="L105">                untriedMoves.add(possibleMove);</span>
+            }
+<span class="fc" id="L107">        }</span>
+        
+<span class="fc" id="L109">        return untriedMoves;</span>
+    }
+    
+    // Return the most promising child of this node (the highest UCT score)
+    public Node selectChild(List&lt;Move&gt; possibleMoves, double exploration) {
+<span class="fc" id="L114">        Node selection = null;</span>
+<span class="fc" id="L115">        double selectionScore = -1.0;</span>
+        
+<span class="fc bfc" id="L117" title="All 2 branches covered.">        for (Node child : this.children) {</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">            if (possibleMoves.contains(child.move)) {</span>
+<span class="fc" id="L119">                double currentScore = calculateUCTScore(child, exploration);</span>
+                
+<span class="fc bfc" id="L121" title="All 2 branches covered.">                if (currentScore &gt; selectionScore) {</span>
+<span class="fc" id="L122">                    selection = child;</span>
+<span class="fc" id="L123">                    selectionScore = currentScore; </span>
+                }
+                
+<span class="fc" id="L126">                child.setConsiderations(child.getConsiderations() + 1);</span>
+            }
+<span class="fc" id="L128">        }</span>
+        
+<span class="fc" id="L130">        return selection;</span>
+    }
+    
+    // Add a new child node for this node and return it
+    public Node addChild(Move move, Player player) {
+<span class="fc" id="L135">        Node newNode = new Node(this, move.copy(), player);</span>
+<span class="fc" id="L136">        this.children.add(newNode);</span>
+<span class="fc" id="L137">        return newNode;</span>
+    }
+    
+    // Update visits and total score for this node
+    public void update(Player winner, double result) {
+<span class="fc" id="L142">        this.visits++;</span>
+<span class="fc bfc" id="L143" title="All 2 branches covered.">        if (winner.getId() == this.player.getId()) {</span>
+<span class="fc" id="L144">            this.totalScore += result;</span>
+        } else {
+<span class="fc" id="L146">            this.totalScore += 1 - result;</span>
+        }
+<span class="fc" id="L148">    }</span>
+    
+    // Print the tree down from this node
+    public String treeToString(int indent) {
+<span class="nc" id="L152">        String s = indentString(indent) + this;</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">        for (Node child : this.children) {</span>
+<span class="nc" id="L154">            s += child.treeToString(indent + 1);</span>
+<span class="nc" id="L155">        }</span>
+<span class="nc" id="L156">        return s;</span>
+    }
+    
+    // Printing indentation for different child levels
+    public String indentString(int indent) {
+<span class="nc" id="L161">        String s = &quot;\n&quot;;</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">        for (int i = 0; i &lt; indent + 1; i++) {</span>
+<span class="nc" id="L163">            s += &quot;| &quot;;</span>
+        }
+<span class="nc" id="L165">        return s;</span>
+    }
+    
+    @Override
+    public String toString() {
+<span class="nc bnc" id="L170" title="All 2 branches missed.">        if (this.move == null) {</span>
+<span class="nc" id="L171">            return this.player.getId() + &quot; ROOT, SCORE: &quot; + this.totalScore + &quot;, VISITS: &quot; + this.visits + &quot;, CONSIDERATIONS: &quot; + this.considerations;</span>
+<span class="nc bnc" id="L172" title="All 2 branches missed.">        } else if (this.parent.move == null) {</span>
+<span class="nc" id="L173">            return this.player.getId() + &quot; MOVE: &quot; + this.move + &quot;, SCORE: &quot; + this.totalScore + &quot;, VISITS: &quot; + this.visits + &quot;, CONSIDERATIONS: &quot; + this.considerations + &quot;, PARENT: ROOT&quot;;</span>
+        }
+<span class="nc" id="L175">        return this.player.getId() + &quot; MOVE: &quot; + this.move + &quot;, SCORE: &quot; + this.totalScore + &quot;, VISITS: &quot; + this.visits + &quot;, CONSIDERATIONS: &quot; + this.considerations + &quot;, PARENT TYPE: &quot; + this.parent.move.type();</span>
+    }
+    
+    // Basic UCT formula used for calculation
+    private double calculateUCTScore(Node node, double exploration) {
+<span class="fc" id="L180">        return ( node.getTotalScore() / node.getVisits() ) + ( exploration * Math.sqrt(Math.log(node.getConsiderations()) / node.getVisits()) );</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>
