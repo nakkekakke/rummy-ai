@@ -1,5 +1,14 @@
+# Implementation document
 
-# Performance
+## Structure
+
+Below is the class diagram of the application.
+
+![Class diagram](https://github.com/nakkekakke/rummy-ai/blob/master/documentation/RummyAI%20class%20diagram.png)
+
+In the red I have marked what I think are the core classes of the project. In the domain package, the class "State" is the heart of the game logic, using every other domain class and being the only one to communicate outside that package. Outside the domain package, in the game package is the only main class of the project, "PlayGame". That class creates the initial State object when the application starts, and shares that with either the PerformanceTester class or the AIvsAI_UI class, depending on which one the user wants. The AIvsAI_UI class communicates with the ISMCTS class which is the primary class for the AI itself. The ISMCTS class uses Nodes to create a search tree and traverse it, forming the whole AI functionality.
+
+## Performance
 
 During performance tests, I selected three different skill levels for the AIs, each given a different thinking time to find the optimal move. This is the only difference between them. The thinking times are given in iterations. For example, an AI with 100 thinking time does 100 game simulations every time before doing a move. I used the following AI levels:
 
