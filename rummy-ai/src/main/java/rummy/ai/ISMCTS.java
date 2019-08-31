@@ -1,7 +1,5 @@
 package rummy.ai;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 import rummy.game.domain.Player;
 import rummy.game.domain.State;
@@ -13,11 +11,11 @@ public class ISMCTS {
     
     private State rootState; // The current state of the real game from which the algorithm tries to find the optimal move
     private State currentState;  // The current state of the simulated game
-    private List<Move> possibleMoves; // List of all possible moves from currentState
+    private AIArrayList<Move> possibleMoves; // List of all possible moves from currentState
     private Node currentNode; // The node currently
-    private int limit; // Iteration limit for searching the best move
+    private final int limit; // Iteration limit for searching the best move
     private static final double EXPL = 0.7; // Exploration factor for UCT child selection, can be adjusted to make the AI play differently
-    private Random random;
+    private final Random random;
     private int reshuffles; // The amount of times the deck has been exhausted without progress in the game (high reshuffles = potentially a never ending game)
     
     public ISMCTS(State rootState, int limit) {
@@ -44,7 +42,7 @@ public class ISMCTS {
         // Root node represents the current game situation
         Node rootNode = new Node(null, null, this.rootState.getCurrentPlayer());
         
-        long start = System.currentTimeMillis();
+        //long start = System.currentTimeMillis();
 //        long end = start + (limit * 1000);
         
         int loopCounter = 0;
@@ -77,9 +75,9 @@ public class ISMCTS {
         
         // Find the best move using backpropagated results
         Node best = rootNode.getChildren().get(0);
-        for (Node child : rootNode.getChildren()) {
-            if (child.getVisits() > best.getVisits()) {
-                best = child;
+        for (int i = 0; i < rootNode.getChildren().size(); i++) {
+            if (rootNode.getChildren().get(i).getVisits() > best.getVisits()) {
+                best = rootNode.getChildren().get(i);
             }
         }
         
@@ -99,7 +97,7 @@ public class ISMCTS {
     }
     
     private void expandTreeISMCTS() {
-        List<Move> untriedMoves = this.currentNode.getUntriedMoves(this.possibleMoves);
+        AIArrayList<Move> untriedMoves = this.currentNode.getUntriedMoves(this.possibleMoves);
         if (!untriedMoves.isEmpty()) { // If the game didn't end yet
             Move randomMove = untriedMoves.get(this.random.nextInt(untriedMoves.size())); // Do a random move
             Player currentPlayer = this.currentState.getCurrentPlayer(); // Store current player in case the turn ends after the move
@@ -117,7 +115,7 @@ public class ISMCTS {
     
     private void simulateISMCTS() {
         this.possibleMoves = this.currentState.getAvailableMoves();
-        List<Meld> oldMelds = new ArrayList<>();
+        AIArrayList<Meld> oldMelds = new AIArrayList<>();
         int oldPlayerId = this.currentState.getCurrentPlayer().getId();
         this.reshuffles = 0;
 
@@ -133,7 +131,7 @@ public class ISMCTS {
                     this.reshuffles = 0;
                 }
             }
-            oldMelds = new ArrayList<>();
+            oldMelds = new AIArrayList<>();
             for (Meld meld : this.currentState.getMelds()) {
                 oldMelds.add(meld.copy());
             }

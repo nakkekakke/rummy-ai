@@ -16,6 +16,7 @@ import rummy.game.domain.move.LayoffMove;
 import rummy.game.domain.move.MeldMove;
 import rummy.game.domain.move.Move;
 import rummy.game.domain.move.PassMove;
+import rummy.ai.AIArrayList;
 import rummy.testutil.TestUtil;
 
 public class StateTest {
@@ -313,7 +314,7 @@ public class StateTest {
         Move deckDrawMove = new DrawMove(this.state.getCurrentPlayer(), true);
         Move discardDrawMove = new DrawMove(this.state.getCurrentPlayer(), false);
         
-        List<Move> moves = this.state.getAvailableMoves();
+        AIArrayList<Move> moves = this.state.getAvailableMoves();
         
         assertTrue(moves.contains(deckDrawMove));
         assertTrue(moves.contains(discardDrawMove));
@@ -328,7 +329,7 @@ public class StateTest {
         moves = this.state.getAvailableMoves();
         assertEquals(5, moves.size());
         
-        List<Move> expectedMoves = new ArrayList<>();
+        AIArrayList<Move> expectedMoves = new AIArrayList<>();
         
         expectedMoves.add(new MeldMove(this.state.getCurrentPlayer(), expectedMelds.get(0)));
         expectedMoves.add(new MeldMove(this.state.getCurrentPlayer(), expectedMelds.get(1)));
@@ -347,7 +348,7 @@ public class StateTest {
         moves = this.state.getAvailableMoves();
         List<Card> hand = this.state.getCurrentPlayer().getHand();
         
-        expectedMoves = new ArrayList<>();
+        expectedMoves = new AIArrayList<>();
         expectedMoves.add(new LayoffMove(this.state.getCurrentPlayer(), new Layoff(hand.get(2), expectedMelds.get(0))));
         expectedMoves.add(new LayoffMove(this.state.getCurrentPlayer(), new Layoff(hand.get(3), expectedMelds.get(0))));
         expectedMoves.add(new LayoffMove(this.state.getCurrentPlayer(), new Layoff(hand.get(2), expectedMelds.get(1))));
@@ -361,7 +362,7 @@ public class StateTest {
         
         this.state.setPhase("discard");
         moves = this.state.getAvailableMoves();
-        expectedMoves = new ArrayList<>();
+        expectedMoves = new AIArrayList<>();
         
         for (Card card : hand) {
             expectedMoves.add(new DiscardMove(this.state.getCurrentPlayer(), card));

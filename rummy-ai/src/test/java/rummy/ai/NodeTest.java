@@ -1,10 +1,6 @@
 package rummy.ai;
 
-import java.util.List;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import rummy.game.domain.Player;
@@ -23,16 +19,16 @@ public class NodeTest {
 
     @Test
     public void getUntriedMovesReturnsAllIfNoTriedMoves() {
-        List<Move> allMoves = TestUtil.getAvailableMoves();
+        AIArrayList<Move> allMoves = TestUtil.getAvailableMoves();
         
-        List<Move> untriedMoves = this.node.getUntriedMoves(allMoves);
+        AIArrayList<Move> untriedMoves = this.node.getUntriedMoves(allMoves);
         
         assertEquals(allMoves, untriedMoves);
     }
     
     @Test
     public void getUntriedMovesFiltersOutTriedMoves() {
-        List<Move> allMoves = TestUtil.getAvailableMoves();
+        AIArrayList<Move> allMoves = TestUtil.getAvailableMoves();
         
         assertEquals(2, allMoves.size());
         Move nowTried = allMoves.get(0);
@@ -41,7 +37,7 @@ public class NodeTest {
         
         this.node.getChildren().add(child);
         
-        List<Move> untriedMoves = this.node.getUntriedMoves(allMoves);
+        AIArrayList<Move> untriedMoves = this.node.getUntriedMoves(allMoves);
         
         assertEquals(allMoves.size() - 1, untriedMoves.size());
         assertFalse(untriedMoves.contains(nowTried));
@@ -49,7 +45,7 @@ public class NodeTest {
     
     @Test
     public void selectChildChoosesCorrectChild() {
-        List<Move> possibleMoves = TestUtil.getAvailableMoves("meld");
+        AIArrayList<Move> possibleMoves = TestUtil.getAvailableMoves("meld");
         TestUtil.createSearchTree(this.node);
         Node drawNode = this.node.getChildren().get(0);
         Node child = drawNode.selectChild(possibleMoves, 0.7);

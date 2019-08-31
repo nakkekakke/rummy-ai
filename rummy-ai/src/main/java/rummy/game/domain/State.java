@@ -1,7 +1,5 @@
 package rummy.game.domain;
 
-import rummy.game.domain.Suit;
-import rummy.game.util.Logger;
 import rummy.game.domain.meld.SetMeld;
 import rummy.game.domain.meld.RunMeld;
 import rummy.game.domain.meld.Meld;
@@ -16,6 +14,7 @@ import rummy.game.domain.move.LayoffMove;
 import rummy.game.domain.move.MeldMove;
 import rummy.game.domain.move.Move;
 import rummy.game.domain.move.PassMove;
+import rummy.ai.AIArrayList;
 
 // The class representing the state of the game, changes after every move
 public class State {
@@ -24,7 +23,6 @@ public class State {
     private static final int MAX_HAND_SIZE = 10; // Players can have up to 10 cards in their hands after a turn ends (11 after draw and before discarding)
     private static final int PLAYER_COUNT = 2; // This version is a 2 player game
 
-    private final Logger log = new Logger(false); // Not in use
     private Player currentPlayer; // The player whose turn it is now
     private Player waitingPlayer; // The player whose turn it isn't
     private Card[] deck;
@@ -155,7 +153,6 @@ public class State {
             for (int rank = 1; rank <= 13; rank++) {
                 newDeck[i] = (new Card(suit, rank));
                 i++;
-                log.debug("Card " + suit + "-" + rank + " created");
             }
         }
         
@@ -182,8 +179,6 @@ public class State {
         for (int i = 0; i < MAX_HAND_SIZE * 2; i += 2) {
             this.currentPlayer.addToHand(this.deck[i]);
             this.waitingPlayer.addToHand(this.deck[i + 1]);
-            log.debug("Dealt " + this.deck[i] + " for player " + this.currentPlayer.getId());
-            log.debug("Dealt " + this.deck[i + 1] + " for player " + this.waitingPlayer.getId());
         }
         
         this.currentPlayer.organizeHand();
@@ -454,8 +449,8 @@ public class State {
     //
     
     // Returns all possible moves from this state
-    public List<Move> getAvailableMoves() {
-        List<Move> moves = new ArrayList<>();
+    public AIArrayList<Move> getAvailableMoves() {
+        AIArrayList<Move> moves = new AIArrayList<>();
         if (roundOver()) {
             return moves;
         }

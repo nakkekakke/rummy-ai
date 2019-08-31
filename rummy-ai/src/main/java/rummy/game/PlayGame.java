@@ -8,26 +8,19 @@ import rummy.game.domain.Layoff;
 import rummy.game.domain.Player;
 import rummy.game.domain.State;
 import rummy.game.ui.AIvsAI_UI;
+import rummy.ai.PerformanceTester;
 
 
 public class PlayGame {
     
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-//        Logger log; 
-//        
-//        System.out.println("Type y to start with debug logger");
-//        String debug = scanner.nextLine();
-//        if (debug.equals("y")) {
-//            log = new Logger(true);
-//        } else {
-//            log = new Logger(false);
-//        }
 
         System.out.println("Welcome to Rummy!");
         
         System.out.println("To play an AI vs AI game, choose 1");
-        System.out.println("To play a player vs player game, choose 2 (probably not working as of now so choose 1)");
+        System.out.println("To play a player vs player game, choose 2 (legacy code, might have bugs)");
+        System.out.println("To run performance tests, choose 3");
         
         String gameType = scanner.nextLine();
         
@@ -41,17 +34,24 @@ public class PlayGame {
         }
         
         if (gameType.equals("1")) {
-            playAIvAIGame(state.getCurrentPlayer().getId(), scanner);
-        } else {
+            playAIvAIGame(state, scanner);
+        } else if (gameType.equals("2")) {
             playPvPGame(scanner, state);
+        } else {
+            runPerformanceTests(state, scanner);
         }
         
         
     }
 
-    private static void playAIvAIGame(int startingPlayerId, Scanner scanner) {
-        AIvsAI_UI aiUI = new AIvsAI_UI(startingPlayerId, scanner);
+    private static void playAIvAIGame(State state, Scanner scanner) {
+        AIvsAI_UI aiUI = new AIvsAI_UI(state, scanner);
         aiUI.play();
+    }
+    
+    private static void runPerformanceTests(State state, Scanner scanner) {
+        PerformanceTester perfTest = new PerformanceTester(state, scanner);
+        perfTest.run();
     }
 
     private static void playPvPGame(Scanner scanner, State state) {

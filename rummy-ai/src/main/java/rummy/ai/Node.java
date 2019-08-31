@@ -1,14 +1,12 @@
 package rummy.ai;
 
-import java.util.ArrayList;
-import java.util.List;
 import rummy.game.domain.Player;
 import rummy.game.domain.move.Move;
 
 public class Node {
     
     private Node parent; // the parent of this node, null for root
-    private List<Node> children; // the child nodes of this node (one for every possible move from this node)
+    private AIArrayList<Node> children; // the child nodes of this node (one for every possible move from this node)
     
     private Move move; // move used to get to this node, null for root
     private Player player; // player who is doing the move to get to this node, the starting player for root
@@ -18,7 +16,7 @@ public class Node {
     
     public Node(Node parent, Move move, Player player) {
         this.parent = parent;
-        this.children = new ArrayList<>();
+        this.children = new AIArrayList<>();
         
         this.move = move;
         this.player = player;
@@ -35,11 +33,11 @@ public class Node {
         this.parent = parent;
     }
 
-    public List<Node> getChildren() {
+    public AIArrayList<Node> getChildren() {
         return this.children;
     }
 
-    public void setChildren(List<Node> children) {
+    public void setChildren(AIArrayList<Node> children) {
         this.children = children;
     }
 
@@ -84,25 +82,25 @@ public class Node {
     }
     
     // Filter out all currently possible moves that have already been tried at least once
-    public List<Move> getUntriedMoves(List<Move> possibleMoves) {
-        List<Move> triedMoves = new ArrayList<>();
-        for (Node child : this.children) {
-            triedMoves.add(child.move);
+    public AIArrayList<Move> getUntriedMoves(AIArrayList<Move> possibleMoves) {
+        AIArrayList<Move> triedMoves = new AIArrayList<>();
+        for (int i = 0; i < this.children.size(); i++) {
+            triedMoves.add(this.children.get(i).getMove());
         }
         
-        List<Move> untriedMoves = new ArrayList<>();
+        AIArrayList<Move> untriedMoves = new AIArrayList<>();
         
-        for (Move possibleMove : possibleMoves) {
+        for (int i = 0; i < possibleMoves.size(); i++) {
             boolean tried = false;
-            for (Move triedMove : triedMoves) {
-                if (possibleMove.equals(triedMove)) {
+            for (int j = 0; j < triedMoves.size(); j++) {
+                if (possibleMoves.get(i).equals(triedMoves.get(j))) {
                     tried = true;
                     break;
                 }   
             }
             
             if (!tried) {
-                untriedMoves.add(possibleMove);
+                untriedMoves.add(possibleMoves.get(i));
             }
         }
         
@@ -110,11 +108,12 @@ public class Node {
     }
     
     // Return the most promising child of this node (the highest UCT score)
-    public Node selectChild(List<Move> possibleMoves, double exploration) {
+    public Node selectChild(AIArrayList<Move> possibleMoves, double exploration) {
         Node selection = null;
         double selectionScore = -1.0;
         
-        for (Node child : this.children) {
+        for (int i = 0; i < this.children.size(); i++) {
+            Node child = this.children.get(i);
             if (possibleMoves.contains(child.move)) {
                 double currentScore = calculateUCTScore(child, exploration);
                 
@@ -150,8 +149,8 @@ public class Node {
     // Print the tree down from this node
     public String treeToString(int indent) {
         String s = indentString(indent) + this;
-        for (Node child : this.children) {
-            s += child.treeToString(indent + 1);
+        for (int i = 0; i < this.children.size(); i++) {
+            s += this.children.get(i).treeToString(indent + 1);
         }
         return s;
     }

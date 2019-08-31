@@ -15,6 +15,7 @@ import rummy.game.domain.move.DrawMove;
 import rummy.game.domain.move.MeldMove;
 import rummy.game.domain.move.Move;
 import rummy.game.domain.move.PassMove;
+import rummy.ai.AIArrayList;
 
 
 public class TestUtil {
@@ -146,12 +147,12 @@ public class TestUtil {
         return meld;
     }
     
-    public static List<Move> getAvailableMoves() {
+    public static AIArrayList<Move> getAvailableMoves() {
         State state = new State(1);
         return state.getAvailableMoves();
     }
     
-    public static List<Move> getAvailableMoves(String phase) {
+    public static AIArrayList<Move> getAvailableMoves(String phase) {
         State state = new State(1);
         state.setPhase(phase);
         

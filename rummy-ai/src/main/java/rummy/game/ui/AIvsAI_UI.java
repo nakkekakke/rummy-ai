@@ -11,8 +11,8 @@ public class AIvsAI_UI {
     private State state;
     private final Scanner scanner;
     
-    public AIvsAI_UI(int startingPlayer, Scanner scanner) {
-        this.state = new State(startingPlayer);
+    public AIvsAI_UI(State state, Scanner scanner) {
+        this.state = state;
         this.scanner = scanner;
     }
     
