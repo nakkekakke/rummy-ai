@@ -11,7 +11,9 @@ import rummy.game.ui.AIvsAI_UI;
 import rummy.ai.PerformanceTester;
 import rummy.game.ui.AIvsPlayer_UI;
 
-
+/**
+ * The main class used to run the application and select the game mode.
+ */
 public class PlayGame {
     
     public static void main(String[] args) {

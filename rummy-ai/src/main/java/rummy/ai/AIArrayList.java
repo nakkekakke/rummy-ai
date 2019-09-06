@@ -3,7 +3,11 @@ package rummy.ai;
 import java.util.Arrays;
 import java.util.List;
 
-public class AIArrayList<E> { // E means the (generic) type of objects in this list (it is specified so you can create AIArrayLists containing only specific type objects)
+/**
+ * A light implementation of the ArrayList.
+ * @param <E> the type of objects in this list
+ */
+public class AIArrayList<E> {
     
     private Object[] array;
     private int index; // Array index where the next object will be added to

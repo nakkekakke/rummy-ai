@@ -2,7 +2,9 @@ package rummy.game.domain;
 
 import java.util.Objects;
 
-
+/**
+ * Represents a card. Every card is unique in the game.
+ */
 public class Card {
     
     private final Suit suit;

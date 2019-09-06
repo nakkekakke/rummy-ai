@@ -6,7 +6,9 @@ import java.util.Scanner;
 import rummy.game.domain.State;
 import rummy.game.domain.move.Move;
 
-
+/**
+ * Test the performance of the ISMCTS algorithm.
+ */
 public class PerformanceTester {
     private State state;
     private final int startingPlayer;

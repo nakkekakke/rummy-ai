@@ -5,7 +5,9 @@ import java.util.Objects;
 import rummy.game.domain.Card;
 import rummy.game.domain.Player;
 
-
+/**
+ * Represents a meld in the game. A meld has a player and a list of melded cards.
+ */
 public abstract class Meld {
     
     private Player player;
@@ -34,14 +36,35 @@ public abstract class Meld {
         return this.cards.toString();
     }
     
+    /**
+     * Checks if the layoff of a card is allowed.
+     * @param card the card to be tested
+     * @return true if the card can be laid off to this meld, otherwise false
+     */
     public abstract boolean layOffAllowed(Card card);
     
+    /**
+     * Lays off the card to this meld.
+     * @param card the card to be laid off
+     */
     public abstract void layoff(Card card);
     
+    /**
+     * Checks if this meld is full.
+     * @return true if this meld is full, otherwise false
+     */
     public abstract boolean isFull();
     
+    /**
+     * Returns the type of this meld.
+     * @return "run" if this meld is a RunMeld, "set" if this meld is a SetMeld
+     */
     public abstract String type();
     
+    /**
+     * Creates a deep copy of this meld.
+     * @return the newly created copy
+     */
     public abstract Meld copy();
 
     @Override

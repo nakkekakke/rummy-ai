@@ -3,6 +3,9 @@ package rummy.ai;
 import rummy.game.domain.Player;
 import rummy.game.domain.move.Move;
 
+/**
+ * Represents a node in the search tree.
+ */
 public class Node {
     
     private Node parent; // the parent of this node, null for root
@@ -81,7 +84,12 @@ public class Node {
         this.considerations = considerations;
     }
     
-    // Filter out all currently possible moves that have already been tried at least once
+    /**
+     * Returns all untried moves by filtering out all currently possible moves that have already been tried at least once.
+     *
+     * @param possibleMoves an AIArrayList of all possible moves
+     * @return an AIArrayList of untried moves
+     */
     public AIArrayList<Move> getUntriedMoves(AIArrayList<Move> possibleMoves) {
         AIArrayList<Move> triedMoves = new AIArrayList<>();
         for (int i = 0; i < this.children.size(); i++) {
@@ -107,7 +115,12 @@ public class Node {
         return untriedMoves;
     }
     
-    // Return the most promising child of this node (the highest UCT score)
+    /**
+     * Returns the most promising child of this node (the child with the highest UCT score).
+     * @param possibleMoves an AIArrayList of all possible moves
+     * @param exploration the exploration factor for the UCT formula
+     * @return the most promising child node
+     */
     public Node selectChild(AIArrayList<Move> possibleMoves, double exploration) {
         Node selection = null;
         double selectionScore = -1.0;
@@ -129,14 +142,24 @@ public class Node {
         return selection;
     }
     
-    // Add a new child node for this node and return it
+    // 
+    /**
+     * Adds a new child node for this node and returns it.
+     * @param move the move that was used to get to the state of the game represented by the child
+     * @param player the player who did the move
+     * @return the newly created child node
+     */
     public Node addChild(Move move, Player player) {
         Node newNode = new Node(this, move.copy(), player);
         this.children.add(newNode);
         return newNode;
     }
     
-    // Update visits and total score for this node
+    /**
+     * Updates visits and total score for this node. Used when backpropagating the simulation result.
+     * @param winner the winner of the simulation
+     * @param result the simulation result from the winners perspective
+     */
     public void update(Player winner, double result) {
         this.visits++;
         if (winner.getId() == this.player.getId()) {
@@ -146,7 +169,11 @@ public class Node {
         }
     }
     
-    // Print the tree down from this node
+    /**
+     * Recursively prints the whole tree from this node down to the root. Used for debugging.
+     * @param indent the size of the indentation when printing this node (0 when called the first time)
+     * @return the string representing the tree
+     */
     public String treeToString(int indent) {
         String s = indentString(indent) + this;
         for (int i = 0; i < this.children.size(); i++) {
@@ -155,8 +182,12 @@ public class Node {
         return s;
     }
     
-    // Printing indentation for different child levels
-    public String indentString(int indent) {
+    /**
+     * Manages the printing indentation for different child levels. Used for debugging.
+     * @param indent the size of the indentation when printing this node
+     * @return the string representing the indentation
+     */
+    private String indentString(int indent) {
         String s = "\n";
         for (int i = 0; i < indent + 1; i++) {
             s += "| ";
@@ -174,7 +205,9 @@ public class Node {
         return this.player.getId() + " MOVE: " + this.move + ", SCORE: " + this.totalScore + ", VISITS: " + this.visits + ", CONSIDERATIONS: " + this.considerations + ", PARENT TYPE: " + this.parent.move.type();
     }
     
-    // Basic UCT formula used for calculation
+    /**
+     * Basic UCT formula used for calculating the next node selection.
+     */
     private double calculateUCTScore(Node node, double exploration) {
         return ( node.getTotalScore() / node.getVisits() ) + ( exploration * Math.sqrt(Math.log(node.getConsiderations()) / node.getVisits()) );
     }

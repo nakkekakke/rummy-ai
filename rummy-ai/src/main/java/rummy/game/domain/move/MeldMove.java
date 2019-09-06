@@ -4,7 +4,9 @@ import java.util.Objects;
 import rummy.game.domain.meld.Meld;
 import rummy.game.domain.Player;
 
-
+/**
+ * Represents a move where the player melds a set of cards from their hand.
+ */
 public class MeldMove extends Move {
     
     private final Meld meld;

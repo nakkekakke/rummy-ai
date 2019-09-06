@@ -5,7 +5,9 @@ import rummy.ai.ISMCTS;
 import rummy.game.domain.State;
 import rummy.game.domain.move.Move;
 
-
+/**
+ * Runs the AI vs AI game.
+ */
 public class AIvsAI_UI {
     
     private State state;

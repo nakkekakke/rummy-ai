@@ -3,7 +3,9 @@ package rummy.game.domain.move;
 import java.util.Objects;
 import rummy.game.domain.Player;
 
-
+/**
+ * Represents a move where the player does nothing.
+ */
 public class PassMove extends Move {
     
     private final String phase;

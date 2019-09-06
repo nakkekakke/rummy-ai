@@ -6,7 +6,9 @@ import rummy.game.domain.State;
 import rummy.game.domain.meld.Meld;
 import rummy.game.domain.move.Move;
 
-// The class representing the Information Set Monte Carlo tree search
+/**
+ * Represents the Information Set Motne Carlo tree search (ISMCTS).
+ */
 public class ISMCTS {
     
     private State rootState; // The current state of the real game from which the algorithm tries to find the optimal move
@@ -37,18 +39,18 @@ public class ISMCTS {
         return this.limit;
     }
     
+    /**
+     * Runs the ISMCTS algorithm, searching for the optimal move from rootState.
+     * @return the most promising move found
+     */
     public Move run() {
         
         // Root node represents the current game situation
         Node rootNode = new Node(null, null, this.rootState.getCurrentPlayer());
-        
-        //long start = System.currentTimeMillis();
-//        long end = start + (limit * 1000);
-        
-        int loopCounter = 0;
+
         
         // Main loop of the tree search
-        while (loopCounter < limit) {
+        for (int i = 0; i < limit; i++) {
             this.currentNode = rootNode;
             
             // 1. Clone and determinize the state of the game (randomize information unknown to the AI)
@@ -67,8 +69,6 @@ public class ISMCTS {
             
             // 5. Backpropagate the simulation result from the expanded node (in step 3) to every node along the way to the root
             backPropagateISMCTS();
-            
-            loopCounter++;
         }
         
         //System.out.println(rootNode.treeToString(0)); // uncomment to visualize the tree, useful for debugging
@@ -80,10 +80,6 @@ public class ISMCTS {
                 best = rootNode.getChildren().get(i);
             }
         }
-        
-        //System.out.println("Simulated " + loopCounter + " games!");
-        //long end = System.currentTimeMillis() - start;
-        //System.out.println("This took " + end + " ms");
         return best.getMove();
     }
     

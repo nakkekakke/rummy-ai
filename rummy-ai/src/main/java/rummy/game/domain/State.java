@@ -16,7 +16,11 @@ import rummy.game.domain.move.Move;
 import rummy.game.domain.move.PassMove;
 import rummy.ai.AIArrayList;
 
-// The class representing the state of the game, changes after every move
+// 
+
+/** 
+ * The class representing the state of the game. It is directly changed by doing moves to advance the game.
+ */
 public class State {
     
     private static final int DECK_SIZE = 52; // Rummy uses a standard 52 card deck
@@ -31,10 +35,14 @@ public class State {
     private String phase; // Current phase of the game
     //private static final String[] phases = {"draw", "meld", "layoff", "discard", "end"};
     private Meld currentMeld; // Meld used this turn
-    private Card[][] knownHandCards; // Players' hand cards that are known to both players
+    private Card[][] knownHandCards; // Players' hand cards that are known to both players (cards drawn from the discard pile)
     private Card discardDraw; // The card that was drawn from the discard pile this turn (this card cannot be discarded at the end of this turn)
     
-    // For starting a new game
+
+    /**
+     * Used to start a fresh new game of Rummy.
+     * @param currentPlayerId the id of the player who will start the game.
+     */
     public State(int currentPlayerId) {
         this.currentPlayer = new Player(currentPlayerId);
         this.waitingPlayer = new Player((currentPlayerId % PLAYER_COUNT) + 1);
@@ -46,8 +54,12 @@ public class State {
         this.discardDraw = null;
         this.deal();
     }
-    
-    // For starting a new round (player points are saved)
+
+    /**
+     * Used to start a new round in the game. This means that the player points are saved.
+     * @param currentPlayer the id of the player who will start the new round.
+     * @param waitingPlayer the id of the other player.
+     */
     public State(Player currentPlayer, Player waitingPlayer) {
         this.currentPlayer = currentPlayer;
         this.waitingPlayer = waitingPlayer;
@@ -59,8 +71,19 @@ public class State {
         this.discardDraw = null;
         this.deal();
     }
-    
-    // For cloning
+
+    /**
+     * Constructor used to clone a state. All of the parameters will be added into the clone.
+     * @param currentPlayer
+     * @param waitingPlayer
+     * @param deck
+     * @param discardPile
+     * @param melds
+     * @param phase
+     * @param knownHandCards
+     * @param currentMeld
+     * @param discardDraw
+     */
     public State(Player currentPlayer, Player waitingPlayer, Card[] deck, Stack<Card> discardPile, List<Meld> melds, String phase, Card[][] knownHandCards, Meld currentMeld, Card discardDraw) {
         this.currentPlayer = currentPlayer;
         this.waitingPlayer = waitingPlayer;
@@ -121,10 +144,18 @@ public class State {
         this.phase = phase;
     }
     
+    /**
+     * Gets the top card of the discard pile without removing it from the pile.
+     * @return the top card of the discard pile
+     */
     public Card getDiscardPileTop() {
         return this.discardPile.peek();
     }
     
+    /**
+     *
+     * @return the current amount of cards in the deck
+     */
     public int getDeckSize() {
         return this.deck.length;
     }
@@ -132,7 +163,7 @@ public class State {
     public int getOpponentHandSize() {
         return this.waitingPlayer.getHand().size();
     }
-    
+
     public Card[][] getKnownHandCards() {
         return this.knownHandCards;
     }
@@ -144,7 +175,11 @@ public class State {
         initialDraw();
     }
     
-    // Creates a fresh 52 card deck (not shuffled)
+
+    /**
+     * Creates a fresh 52-card deck (not shuffled)
+     * @return a full deck with cards in order
+     */
     public final Card[] createDeck() {
         Card[] newDeck = new Card[DECK_SIZE];
         
@@ -192,7 +227,10 @@ public class State {
         this.deck = newDeck;
     }
     
-    // Done during every deal, a card from the deck is added to the empty discard pile
+
+    /**
+     * Done during every deal, a card from the deck is added to the empty discard pile.
+     */
     public void initialDraw() {
         Card draw = this.deck[0];
         Card[] newDeck = shortenDeckByN(this.deck, 1);
@@ -201,7 +239,11 @@ public class State {
         this.discardPile.push(draw);
     }
     
-    // Returns a card drawn from the deck and removes that card from the deck
+
+    /**
+     * Returns a card drawn from the deck and removes that card from the deck.
+     * @return the top card of the deck
+     */
     public Card drawFromDeck() {
         Card draw = this.deck[0];
         Card[] newDeck = shortenDeckByN(this.deck, 1);
@@ -239,10 +281,17 @@ public class State {
         return shuffleDeck(newDeck);
     }
     
+    /**
+     * Sorts the current hand.
+     */
     public void organizeCurrentHand() {
         this.currentPlayer.organizeHand();
     }
     
+    /**
+     * Draws a card from the discard pile and adds it to the current player's hand. Also advances the game phase to "meld".
+     * @return the top card of the discard pile
+     */
     public Card drawFromDiscardPile() {
         Card draw = this.discardPile.pop();
         this.currentPlayer.addToHand(draw);
@@ -253,7 +302,11 @@ public class State {
         return draw;
     }
     
-    // Finds all possible melds for the current player. Assumes that hand cards are in order !!!
+
+    /**
+     * Finds all possible melds the current player can do from their hand. Assumes that hand cards are in order!
+     * @return a list of all possible melds for the current player
+     */
     public List<Meld> findPossibleMelds() {
         List<Meld> possibleMelds = new ArrayList<>();
         List<Card> hand = this.currentPlayer.getHand();
@@ -330,7 +383,12 @@ public class State {
         return possibleMelds;
     }
     
-    // Creates a meld, removes the melded cards from the hand and starts layoff phase
+
+    /**
+     * Creates a meld, removes the melded cards from the hand and starts the layoff phase. The parameter meld will be cloned and the clone will be used.
+     * @param meld the meld to be added to the game melds
+     * @return the meld used as parameter
+     */
     public Meld meld(Meld meld) {
         for (int i = 0; i < meld.getCards().size(); i++) {
             this.currentPlayer.discard(meld.getCards().get(i));
@@ -342,7 +400,11 @@ public class State {
         return meld;
     }
     
-    // Finds possible layoffs for the current player
+
+    /**
+     * Finds all possible layoffs for the current player.
+     * @return a list of possible layoffs
+     */
     public List<Layoff> findPossibleLayoffs() {
         List<Layoff> layoffs = new ArrayList<>();
         List<Card> hand = this.currentPlayer.getHand();
@@ -355,8 +417,12 @@ public class State {
         }
         return layoffs;
     }
-    
-    // Creates a layoff, removes the laid-off card from hand
+
+    /**
+     * Creates a layoff and removes the laid-off card from hand. The parameter layoff will be cloned before using.
+     * @param layoff the layoff to be done
+     * @param aiSelection true if this method is being used by the AI's selection phase, otherwise false
+     */
     public void layoff(Layoff layoff, boolean aiSelection) {
         this.currentPlayer.discard(layoff.getCard());
         removeFromKnownHandCards(layoff.getCard(), this.currentPlayer);
@@ -374,19 +440,31 @@ public class State {
         }
     }
     
-    // Starts the discard phase after all wanted layoffs have been done
+
+    /**
+     * Starts the discard phase. This is called after all wanted layoffs have been done.
+     */
     public void layoffDone() {
         this.phase = "discard";
     }
     
-    // Discards hand card by index
+
+    /**
+     * Discards hand card by index.
+     * @param number the index of the card in hand
+     * @return the discarded card
+     */
     public Card discardCardNumber(int number) {
         Card card = this.currentPlayer.getHand().get(number);
         this.discard(card);
         return card;
     }
     
-    // Discards a hand card and starts the end phase
+
+    /**
+     * Discards a hand card and starts the end phase.
+     * @param card the card to be discarded
+     */
     public void discard(Card card) {
         this.discardPile.push(card);
         this.currentPlayer.discard(card);
@@ -395,6 +473,9 @@ public class State {
         this.phase = "end";
     }
     
+    /**
+     * Swaps the current and the waiting player, sets the game phase to draw.
+     */
     public void endTurn() {
         Player current = this.currentPlayer;
         this.currentPlayer = this.waitingPlayer;
@@ -403,7 +484,11 @@ public class State {
         this.discardDraw = null;
     }
     
-    // Calculates the points for the winner of this round
+
+    /**
+     * Calculates the points for the winner of this round. Must be called during the winning player's turn.
+     * @return the sum of the points awarded from this round
+     */
     public int calculateRoundPoints() {
         int sum = 0;
         for (int i = 0; i < this.waitingPlayer.getHand().size(); i++) {
@@ -417,22 +502,41 @@ public class State {
         return sum;
     }
     
+    /**
+     * Updates the points of the winner of this round automatically.
+     */
     public void updateWinnerPoints() {
         this.currentPlayer.setPoints(this.currentPlayer.getPoints() + calculateRoundPoints());
     }
     
+    /**
+     * Starts a new round. Creates a new game state that will be used for the next round.
+     * @return the new game state
+     */
     public State startNewRound() {
         return new State(this.waitingPlayer, this.currentPlayer); // loser starts the next round
     }
     
+    /**
+     *
+     * @return true if a card has been discarded and it's time to end the turn, otherwise false
+     */
     public boolean turnOver() {
         return this.phase.equals("end");
     }
         
+    /**
+     *
+     * @return true if the current player's hand is empty, otherwise false
+     */
     public boolean roundOver() {
         return currentPlayer.getHand().isEmpty();
     }
     
+    /**
+     *
+     * @return true if the current player has won the whole game, otherwise false
+     */
     public boolean gameOver() {
         return this.currentPlayer.getPoints() >= 100;
     }
@@ -448,7 +552,11 @@ public class State {
     // "THE AI METHODS"
     //
     
-    // Returns all possible moves from this state
+
+    /**
+     * Returns all possible moves from this game phase.
+     * @return a list of all possible moves
+     */
     public AIArrayList<Move> getAvailableMoves() {
         AIArrayList<Move> moves = new AIArrayList<>();
         if (roundOver()) {
@@ -486,8 +594,12 @@ public class State {
         
         return moves;
     }
-    
-    // Does a move and changes this state directly
+
+    /**
+     * Does a move and changes this state directly.
+     * @param move the move to be done
+     * @param aiSelection true if this method is being used by the AI's selection phase, otherwise false
+     */
     public void doMove(Move move, boolean aiSelection) {
         switch (move.type()) {
             case "draw":
@@ -531,6 +643,9 @@ public class State {
         discard(move.getCard());
     }
     
+    /**
+     * Only advances the game state. Ends the turn if game state was "end".
+     */
     private void doPassMove() {
         if (this.phase.equals("meld")) {
             this.phase = "layoff";
@@ -541,7 +656,11 @@ public class State {
         }
     }
     
-    // Creates a "deep" clone of this state (deep enough for the AI)
+
+    /**
+     * Creates a "deep" clone of this state (deep enough for the AI to consider them the same).
+     * @return the cloned state
+     */
     @SuppressWarnings("unchecked")
     public State cloneState() {
         List<Meld> cloneMelds = new ArrayList<>();
@@ -592,7 +711,11 @@ public class State {
         );
     }
     
-    // Randomizes all hidden information of the state from the AI's perspective
+
+    /**
+     * Clones the current state, then randomizes all hidden information of the state from the AI's perspective. Applies this randomization to the cloned state.
+     * @return the newly cloned and randomized state
+     */
     public State cloneAndRandomizeState() {
         State clone = cloneState();
         
@@ -684,7 +807,11 @@ public class State {
     // 60 points = 0.8
     // 80 points = 0.9
     // 100 points = win = 1.0
-    // Get the result for the AI from the winner's perspective
+
+    /**
+     * Gets the round result from the winner's perspective. The result is linearly scaled between 0.5 and 1.0 so that 0.5 means a draw and 1.0 means a win by 100 points. This value is used by the AI.
+     * @return the win result between 0.505 (inclusive) and 1.0 (inclusive)
+     */
     public double getWinResult() {
         double result;
         int points = calculateRoundPoints();

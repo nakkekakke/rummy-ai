@@ -4,6 +4,9 @@ import java.util.LinkedList;
 import rummy.game.domain.Card;
 import rummy.game.domain.Player;
 
+/**
+ * Represents a run meld. A run meld is a group of cards having adjacent rank values and the same suit.
+ */
 public class RunMeld extends Meld {
 
     public RunMeld(Player player, LinkedList<Card> cards) {

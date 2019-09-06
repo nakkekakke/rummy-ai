@@ -2,7 +2,9 @@ package rummy.game.domain.move;
 
 import rummy.game.domain.Player;
 
-
+/**
+ * Represents a move where a player draws a card from the deck or the discard pile.
+ */
 public class DrawMove extends Move {
     
     private final boolean isDeckDraw; // true if deck draw, false if discard pile draw

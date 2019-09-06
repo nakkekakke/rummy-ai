@@ -4,7 +4,9 @@ import java.util.LinkedList;
 import rummy.game.domain.Card;
 import rummy.game.domain.Player;
 
-
+/**
+ * Represents a set meld. A set meld is a group of cards having the same rank.
+ */
 public class SetMeld extends Meld {
 
     public SetMeld(Player player, LinkedList<Card> cards) {

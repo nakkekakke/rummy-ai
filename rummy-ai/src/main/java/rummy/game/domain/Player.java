@@ -3,20 +3,29 @@ package rummy.game.domain;
 import java.util.ArrayList;
 import java.util.List;
 
-// Represents a player (only 2 players)
+/**
+ * Represents a player. There are only 2 players in the game.
+ */
 public class Player {
     
     private final int id;
     private int points;
     private List<Card> hand;
     
+    /**
+     * Constructor used to create a new player.
+     * @param id the unique id of this player, integer 1 or 2
+     */
     public Player(int id) {
         this.id = id;
         this.points = 0;
         this.hand = new ArrayList<>();
     }
     
-    // Clones a player
+    /**
+     * Constructor used to clone a player.
+     * @param player the player to be cloned
+     */
     public Player(Player player) {
         this.id = player.getId();
         this.points = player.getPoints();
@@ -55,6 +64,9 @@ public class Player {
         this.hand.remove(card);
     }
     
+    /**
+     * Organizes the hand of this player. Suits are prioritized first, then the ranks.
+     */
     public void organizeHand() {
         for (int i = 0; i < this.hand.size(); i++) {
             for (int j = 0; j < this.hand.size(); j++) {

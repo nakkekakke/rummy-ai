@@ -4,7 +4,9 @@ import java.util.Objects;
 import rummy.game.domain.Layoff;
 import rummy.game.domain.Player;
 
-
+/**
+ * Represents a move where the player lays off a card from their hand.
+ */
 public class LayoffMove extends Move {
     
     private final Layoff layoff;

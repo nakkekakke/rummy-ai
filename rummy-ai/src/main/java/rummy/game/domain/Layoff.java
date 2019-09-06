@@ -3,7 +3,9 @@ package rummy.game.domain;
 import java.util.Objects;
 import rummy.game.domain.meld.Meld;
 
-// Represents a layoff (adding a card to a pre-existing meld)
+/**
+ * Represents a layoff (adding a card to a pre-existing meld).
+ */
 public class Layoff {
     
     private final Card card;

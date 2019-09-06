@@ -4,7 +4,9 @@ import java.util.Objects;
 import rummy.game.domain.Card;
 import rummy.game.domain.Player;
 
-
+/**
+ * Represents a move where a player discards a card from their hand.
+ */
 public class DiscardMove extends Move {
     
     private final Card card; // card to discard from hand

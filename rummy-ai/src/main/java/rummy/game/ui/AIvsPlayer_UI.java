@@ -10,7 +10,9 @@ import rummy.game.domain.meld.Meld;
 import rummy.game.domain.move.DrawMove;
 import rummy.game.domain.move.Move;
 
-
+/**
+ * Runs the AI vs human game.
+ */
 public class AIvsPlayer_UI {
     private State state;
     private final Scanner scanner;
