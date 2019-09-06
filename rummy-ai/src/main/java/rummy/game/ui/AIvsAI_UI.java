@@ -34,7 +34,9 @@ public class AIvsAI_UI {
             int turnsPlayed = 0;
 
             while (!this.state.getAvailableMoves().isEmpty()) {
-                System.out.println(this.state);
+                //System.out.println(this.state);
+                System.out.println("Player " + this.state.getCurrentPlayer().getId() +  " current hand: " + this.state.getCurrentPlayer().getHand());
+                System.out.println("Current melds: " + this.state.getMelds());
                 ISMCTS aiOne = new ISMCTS(this.state, aiOneTime);
                 ISMCTS aiTwo = new ISMCTS(this.state, aiTwoTime);
                 Move nextMove;
@@ -47,7 +49,7 @@ public class AIvsAI_UI {
                     nextMove = aiTwo.run();
                 }
                 
-                System.out.println("Next move " + nextMove);
+                System.out.println("Player " + this.state.getCurrentPlayer().getId() + " next move :" + nextMove);
                 this.state.doMove(nextMove, false);
                 
                 if (this.state.roundOver()) {

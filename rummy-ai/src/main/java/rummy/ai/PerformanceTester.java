@@ -22,17 +22,23 @@ public class PerformanceTester {
     public void run() {
         System.out.println("Performance tests starting!");
         System.out.println("This test supports three different AI levels");
+        System.out.println("Select the AI levels");
         System.out.println("Level 1 = 250 iterations per move");
         System.out.println("Level 2 = 1000 iterations per move");
         System.out.println("Level 3 = 5000 iterations per move");
         System.out.println("Enter AI #1's level (1-3): ");
+        System.out.println("Or enter 4 for custom level");
+        System.out.println("Enter custom level (in iterations per move):");
         int aiOneTime = Integer.parseInt(this.scanner.nextLine());
         if (aiOneTime == 1) {
             aiOneTime = 250;
         } else if (aiOneTime == 2) {
             aiOneTime = 1000;
-        } else {
+        } else if (aiOneTime == 3) {
             aiOneTime = 5000;
+        } else {
+            System.out.println("Enter custom level (in iterations per move):");
+            aiOneTime = Integer.parseInt(this.scanner.nextLine());
         }
         
         System.out.println("Enter AI #2's level (1-3): ");
@@ -41,12 +47,15 @@ public class PerformanceTester {
             aiTwoTime = 250;
         } else if (aiTwoTime == 2) {
             aiTwoTime = 1000;
-        } else {
+        } else if (aiTwoTime == 3) {
             aiTwoTime = 5000;
+        } else {
+            System.out.println("Enter custom level:");
+            aiTwoTime = Integer.parseInt(this.scanner.nextLine());
         }
         
         System.out.println("How many games to play?");
-        System.out.println("One game takes usually 1-6 minutes, heavily depending on the AI levels so don't select a number too high!");
+        System.out.println("One game takes usually 1-8 minutes, heavily depending on the AI levels so don't select a number too high!");
         int gamesToPlay = Integer.parseInt(this.scanner.nextLine());
         
         // Performance trackers
@@ -65,18 +74,12 @@ public class PerformanceTester {
         for (int i = 0; i < gamesToPlay; i++) {
             long gameStart = System.currentTimeMillis();
             this.state = new State(startingPlayer);
-            //int roundCount = 0;
 
             OUTER:
             while (true) {
                 long start = System.currentTimeMillis();
-                //System.out.println("Starting a new round!");
-
-
-                //int turnsPlayed = 0;
 
                 while (!this.state.getAvailableMoves().isEmpty()) {
-                    //System.out.println(this.state);
                     ISMCTS aiOne = new ISMCTS(this.state, aiOneTime);
                     ISMCTS aiTwo = new ISMCTS(this.state, aiTwoTime);
                     Move nextMove;
@@ -93,7 +96,6 @@ public class PerformanceTester {
                         player2MoveTimes.add(System.currentTimeMillis() - startP2);
                     }
 
-                    //System.out.println("Next move " + nextMove);
                     this.state.doMove(nextMove, false);
 
                     if (this.state.roundOver()) {
@@ -101,17 +103,10 @@ public class PerformanceTester {
                     } else if (this.state.turnOver()) {
                         this.state.endTurn();
                     }
-                    //turnsPlayed++;
-                    //if (turnsPlayed > 1000) {
-                        //System.out.println("Something went wrong, please try again");
-                        //break OUTER;
-                    //}
                 }
                 roundTimes.add(System.currentTimeMillis() - start);
 
                 this.state.updateWinnerPoints();
-
-                //System.out.println("---------------------------");
                 System.out.println("AI #" + this.state.getCurrentPlayer().getId() + " won this round!");
                 if (this.state.getCurrentPlayer().getId() == 1) {
                     player1RoundWins++;
@@ -120,10 +115,6 @@ public class PerformanceTester {
                     player2RoundWins++;
                     player2Scores += this.state.calculateRoundPoints();
                 }
-                //System.out.println("They got " + this.state.calculateRoundPoints() + " points from this round and have a total of" + this.state.getCurrentPlayer().getPoints() + " points!");
-                //System.out.println("The loser got 0 points from this round and has a total of " + this.state.getWaitingPlayer().getPoints() + " points!");
-                //System.out.println("Turns played: " + turnsPlayed);
-                //roundCount++;
 
                 if (this.state.gameOver()) {
                     break;
@@ -134,19 +125,14 @@ public class PerformanceTester {
 
             gameTimes.add((System.currentTimeMillis() - gameStart) / 1000);
 
-            //System.out.println("Game over!");
             System.out.println("AI #" + this.state.getCurrentPlayer().getId() + " won the game by reaching 100 points first");
             if (this.state.getCurrentPlayer().getId() == 1) {
                 player1GameWins++;
             } else {
                 player2GameWins++;
             }
-            //System.out.println("Rounds played: " + roundCount);
-            //System.out.println("---------------------------");
-            //System.out.println("----------RESULTS----------");
             System.out.println("AI #" + this.state.getCurrentPlayer().getId() + " got " + this.state.getCurrentPlayer().getPoints() + " points");
             System.out.println("AI #" + this.state.getWaitingPlayer().getId() + " got " + this.state.getWaitingPlayer().getPoints() + " points");
-            //System.out.println("---------------------------");
         }
         
         double p1MoveAverage = player1MoveTimes.stream().mapToLong(Long::longValue).average().orElse(-1.0);
