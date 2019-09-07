@@ -2,6 +2,8 @@
 
 ### Project documentation
 
+[User guide](https://github.com/nakkekakke/rummy-ai/blob/master/documentation/user_guide.md)
+
 [Definition document](https://github.com/nakkekakke/rummy-ai/blob/master/documentation/definition_document.md)
 
 [Testing document](https://github.com/nakkekakke/rummy-ai/blob/master/documentation/testing_document.md)
