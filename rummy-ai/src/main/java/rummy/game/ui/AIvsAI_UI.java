@@ -21,7 +21,7 @@ public class AIvsAI_UI {
     public void play() {
         System.out.println("AI vs AI game starting!");
         System.out.println("Enter thinking times for the AIs (in iterations)");
-        System.out.println("Under 100 is very fast but bad play, over 10 000 is very slow but good play. For demoing I recommend 1000-5000");
+        System.out.println("Under 100 is very fast but bad play, over 10 000 is very slow but good play. For optimal demoing I recommend 2000-8000");
         System.out.println("Enter AI #1's thinking time: ");
         int aiOneTime = Integer.parseInt(this.scanner.nextLine());
         
@@ -36,6 +36,7 @@ public class AIvsAI_UI {
             int turnsPlayed = 0;
 
             while (!this.state.getAvailableMoves().isEmpty()) {
+                System.out.println("");
                 System.out.println("Player " + this.state.getCurrentPlayer().getId() +  " current hand: " + this.state.getCurrentPlayer().getHand());
                 System.out.println("Current melds: " + this.state.getMelds());
                 ISMCTS aiOne = new ISMCTS(this.state, aiOneTime);
@@ -51,6 +52,8 @@ public class AIvsAI_UI {
                 }
                 
                 System.out.println("Player " + this.state.getCurrentPlayer().getId() + " next move :" + nextMove);
+                System.out.println("");
+                System.out.println("---------------------------");
                 this.state.doMove(nextMove, false);
                 
                 if (this.state.roundOver()) {
@@ -65,7 +68,7 @@ public class AIvsAI_UI {
 
             System.out.println("---------------------------");
             System.out.println("AI #" + this.state.getCurrentPlayer().getId() + " won this round!");
-            System.out.println("They got " + this.state.calculateRoundPoints() + " points from this round and have a total of" + this.state.getCurrentPlayer().getPoints() + " points!");
+            System.out.println("They got " + this.state.calculateRoundPoints() + " points from this round and have a total of " + this.state.getCurrentPlayer().getPoints() + " points!");
             System.out.println("The loser got 0 points from this round and has a total of " + this.state.getWaitingPlayer().getPoints() + " points!");
             System.out.println("Turns played: " + turnsPlayed);
             roundCount++;

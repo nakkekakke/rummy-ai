@@ -21,8 +21,8 @@ public class PlayGame {
 
         System.out.println("Welcome to Rummy!");
         
-        System.out.println("To play an AI vs AI game, choose 1");
-        System.out.println("To play a player vs AI game, choose 2");
+        System.out.println("To play a player vs AI game, choose 1");
+        System.out.println("To play an AI vs AI game, choose 2");
         System.out.println("To play a player vs player game, choose 3 (legacy code, might have bugs)");
         System.out.println("To run performance tests, choose 4");
         
@@ -38,9 +38,9 @@ public class PlayGame {
         }
         
         if (gameType.equals("1")) {
-            playAIvAIGame(state, scanner);
-        } else if (gameType.equals("2")) {
             playAIvPlayerGame(state, scanner);
+        } else if (gameType.equals("2")) {
+            playAIvAIGame(state, scanner);
         } else if (gameType.equals("3")) {
             playPvPGame(scanner, state);
         } else {
