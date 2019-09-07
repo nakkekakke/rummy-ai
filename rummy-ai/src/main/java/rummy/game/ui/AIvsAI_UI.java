@@ -36,7 +36,6 @@ public class AIvsAI_UI {
             int turnsPlayed = 0;
 
             while (!this.state.getAvailableMoves().isEmpty()) {
-                //System.out.println(this.state);
                 System.out.println("Player " + this.state.getCurrentPlayer().getId() +  " current hand: " + this.state.getCurrentPlayer().getHand());
                 System.out.println("Current melds: " + this.state.getMelds());
                 ISMCTS aiOne = new ISMCTS(this.state, aiOneTime);

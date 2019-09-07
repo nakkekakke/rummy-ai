@@ -47,6 +47,12 @@ jacocoTestReport {
     }
 }
 
+jar {
+    manifest {
+        attributes 'Main-Class': 'rummy.game.PlayGame'
+    }
+}
+
 mainClassName = 'rummy.game.PlayGame'
 
 // compileJava {

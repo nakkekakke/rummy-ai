@@ -22,28 +22,27 @@ public class AIvsPlayer_UI {
         this.scanner = scanner;
     }
     
-    public void play() {
+    public void play() { // Compared to an AI vs AI game, here the AI can have a lot more thinking time because the human opponent will also think for a long time every turn
         System.out.println("AI vs human game starting!");
         System.out.println("Enter the AI level for your opponent");
-        System.out.println("Level 1 = very easy, 1000 iterations per move");
-        System.out.println("Level 2 = easy, 5000 iterations per move");
-        System.out.println("Level 3 = medium, 10000 iterations per move");
-        System.out.println("Level 4 = hard, 20000 iterations per move");
-        System.out.println("Level 5 = very hard, 50000 iterations per move (might be a bit slow)");
+        System.out.println("Level 1 = very easy, 2500 iterations per move");
+        System.out.println("Level 2 = easy, 10000 iterations per move");
+        System.out.println("Level 3 = medium, 25000 iterations per move");
+        System.out.println("Level 4 = hard, 50000 iterations per move");
+        System.out.println("Level 5 = god, 100000 iterations per move (might be laggy)");
         
-        System.out.println("Enter AI thinking time:");
         int aiTime = Integer.parseInt(this.scanner.nextLine());
         
         if (aiTime == 1) {
-            aiTime = 1000;
+            aiTime = 2500;
         } else if (aiTime == 2) {
-            aiTime = 5000;
-        } else if (aiTime == 3) {
             aiTime = 10000;
+        } else if (aiTime == 3) {
+            aiTime = 25000;
         } else if (aiTime == 4) {
-            aiTime = 20000;
-        } else {
             aiTime = 50000;
+        } else {
+            aiTime = 100000;
         }
         
         System.out.println("Do you want to go first? (y/n)");
